@@ -1,72 +1,60 @@
+import { useSyncExternalStore } from "react";
 import type { User } from "./api/types";
 
-const TOKEN_KEY = "dromo.token";
-const USER_KEY = "dromo.user";
+// Cookie-session auth: there is no token in JS. Session lives in an httpOnly cookie; the client's
+// source of truth is GET /auth/me (hydrate). `status` gates ProtectedRoute so a hard refresh of an
+// authed route doesn't flash a redirect before we've confirmed the session.
 
-type Listener = () => void;
-const listeners = new Set<Listener>();
+type Status = "loading" | "ready";
 
-let token: string | null = null;
 let user: User | null = null;
+let status: Status = "loading";
+let snapshot: { user: User | null; status: Status } = { user, status };
 
-function load() {
-  if (typeof window === "undefined") return;
-  token = window.localStorage.getItem(TOKEN_KEY);
-  const raw = window.localStorage.getItem(USER_KEY);
-  user = raw ? (JSON.parse(raw) as User) : null;
-}
-load();
-
+const listeners = new Set<() => void>();
 function emit() {
+  snapshot = { user, status };
   listeners.forEach((l) => l());
 }
 
 export const authStore = {
-  getToken: () => token,
   getUser: () => user,
-  isAuthenticated: () => !!token,
-  setSession(t: string, u: User) {
-    token = t;
+  getStatus: () => status,
+  isAuthenticated: () => !!user,
+  setUser(u: User) {
     user = u;
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(TOKEN_KEY, t);
-      window.localStorage.setItem(USER_KEY, JSON.stringify(u));
-    }
-    emit();
-  },
-  updateUser(u: User) {
-    user = u;
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(USER_KEY, JSON.stringify(u));
-    }
+    status = "ready";
     emit();
   },
   clear() {
-    token = null;
     user = null;
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(TOKEN_KEY);
-      window.localStorage.removeItem(USER_KEY);
-    }
+    status = "ready";
     emit();
   },
-  subscribe(l: Listener) {
+  /** Confirm the cookie session via /auth/me. Client-only; called once on app boot. */
+  async hydrate() {
+    if (typeof window === "undefined") return;
+    try {
+      const { auth } = await import("./api");
+      user = await auth.me();
+    } catch {
+      user = null;
+    } finally {
+      status = "ready";
+      emit();
+    }
+  },
+  subscribe(l: () => void) {
     listeners.add(l);
     return () => listeners.delete(l);
   },
 };
 
-import { useSyncExternalStore } from "react";
-
 export function useAuth() {
   const snap = useSyncExternalStore(
-    (cb) => authStore.subscribe(cb),
-    () => token,
-    () => null,
+    authStore.subscribe,
+    () => snapshot,
+    () => snapshot,
   );
-  return {
-    token: snap,
-    user,
-    isAuthenticated: !!snap,
-  };
+  return { user: snap.user, status: snap.status, isAuthenticated: !!snap.user };
 }

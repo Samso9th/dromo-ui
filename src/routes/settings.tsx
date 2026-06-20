@@ -57,7 +57,7 @@ function SettingsPage() {
   });
 
   function saveProfile() {
-    if (user) authStore.updateUser({ ...user, name });
+    if (user) authStore.setUser({ ...user, name });
     toast.success("Profile saved");
   }
 

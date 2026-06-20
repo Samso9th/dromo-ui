@@ -271,7 +271,7 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
   async function gen() {
     setBusy(true);
     try {
-      const cl = await generation.generateCoverLetter(session.id);
+      const cl = await generation.generateCoverLetter(session.id, tone);
       setDraft(cl);
       await onChange();
       void creditsStore.refresh();

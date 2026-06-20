@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth-store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,8 +28,13 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { status, isAuthenticated } = useAuth();
   const [magicSent, setMagicSent] = useState<string | null>(null);
   const [magicLoading, setMagicLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "ready" && isAuthenticated) navigate({ to: "/dashboard" });
+  }, [status, isAuthenticated, navigate]);
 
   const form = useForm<FormVals>({
     resolver: zodResolver(schema),
@@ -37,9 +43,9 @@ function LoginPage() {
 
   async function onSubmit(values: FormVals) {
     try {
-      const res = await auth.login(values.email, values.password);
-      authStore.setSession(res.token, res.user);
-      navigate({ to: res.user.hasMasterResume ? "/dashboard" : "/onboarding" });
+      const user = await auth.login(values.email, values.password);
+      authStore.setUser(user);
+      navigate({ to: user.hasMasterResume ? "/dashboard" : "/onboarding" });
     } catch (e) {
       toast.error("Couldn't sign you in. Check your details and try again.");
     }

@@ -1,18 +1,25 @@
 import { useEffect, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { authStore, useAuth } from "@/lib/auth-store";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-store";
 import { AppShell } from "@/components/app-shell";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { status, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Check the live store, not the snapshot. During hydration the external-store
-  // snapshot is briefly null (to match SSR), which would otherwise trigger a
-  // spurious redirect to /login on a hard refresh of an authed route.
   useEffect(() => {
-    if (!authStore.isAuthenticated()) navigate({ to: "/login" });
-  }, [isAuthenticated, navigate]);
+    if (status === "ready" && !isAuthenticated) navigate({ to: "/login" });
+  }, [status, isAuthenticated, navigate]);
+
+  // Confirming the cookie session (or SSR) — show a neutral loader, no premature redirect.
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return null;
   return <AppShell>{children}</AppShell>;

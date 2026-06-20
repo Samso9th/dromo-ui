@@ -2,7 +2,8 @@ import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/api";
+import { auth, oauthUrl } from "@/lib/api";
+import { USE_MOCKS } from "@/lib/api/client";
 import { authStore } from "@/lib/auth-store";
 import type { OAuthProvider } from "@/lib/api/types";
 import { toast } from "sonner";
@@ -40,11 +41,17 @@ export function OAuthButtons() {
   const [busy, setBusy] = useState<OAuthProvider | null>(null);
 
   async function handle(p: OAuthProvider) {
+    if (!USE_MOCKS) {
+      // Real OAuth is a full-page redirect; the backend sets cookies and returns to /dashboard.
+      setBusy(p);
+      window.location.href = oauthUrl(p);
+      return;
+    }
     try {
       setBusy(p);
-      const res = await auth.oauthStart(p);
-      authStore.setSession(res.token, res.user);
-      navigate({ to: res.user.hasMasterResume ? "/dashboard" : "/onboarding" });
+      const user = await auth.oauthStart(p);
+      authStore.setUser(user);
+      navigate({ to: user.hasMasterResume ? "/dashboard" : "/onboarding" });
     } catch (e) {
       toast.error(`Couldn't continue with ${p}`);
       setBusy(null);

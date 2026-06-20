@@ -1,4 +1,4 @@
-import { apiFetch, USE_MOCKS, mockDelay } from "./client";
+import { apiFetch, USE_MOCKS, mockDelay, BASE_URL } from "./client";
 import {
   DEFAULT_MODEL_ID,
   mockMasterResume,
@@ -8,9 +8,9 @@ import {
 } from "./mocks/fixtures";
 import { creditsFor, RETRY_LIMIT, type ActionType } from "@/lib/credits";
 import { DEFAULT_TEMPLATE_ID } from "@/lib/templates";
+import { ApiError } from "./types";
 import type {
   AiModel,
-  AuthResponse,
   ChatMessage,
   CoverLetter,
   CreditTransaction,
@@ -32,6 +32,19 @@ const _sessions = new Map<string, GenerationSession>(
   mockSessions.map((s) => [s.id, { ...s }]),
 );
 let _user: User = { ...mockUser };
+
+// Mock-only session flag (mirrors the cookie session) so the hydrate/me() flow behaves like real auth.
+const SESSION_KEY = "dromo.mockSession";
+const mockAuthed = () =>
+  typeof window !== "undefined" && window.localStorage.getItem(SESSION_KEY) === "1";
+function setMockAuthed(on: boolean) {
+  if (typeof window === "undefined") return;
+  if (on) window.localStorage.setItem(SESSION_KEY, "1");
+  else window.localStorage.removeItem(SESSION_KEY);
+}
+
+/** Full URL to start an OAuth flow (real backend redirect). */
+export const oauthUrl = (provider: OAuthProvider) => `${BASE_URL}/auth/oauth/${provider}`;
 
 function newId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -64,28 +77,34 @@ function enforceRetry(
 
 // --- auth -------------------------------------------------------------------
 export const auth = {
-  async login(email: string, _password: string): Promise<AuthResponse> {
+  async login(email: string, _password: string): Promise<User> {
     if (USE_MOCKS) {
       await mockDelay();
       _user = { ..._user, email, hasMasterResume: !!_master };
-      return { token: "mock-token-" + newId("t"), user: _user };
+      setMockAuthed(true);
+      return _user;
     }
-    return apiFetch<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: { email, password: _password },
-    });
+    return (
+      await apiFetch<{ user: User }>("/auth/login", {
+        method: "POST",
+        body: { email, password: _password },
+      })
+    ).user;
   },
-  async signup(name: string, email: string, _password: string): Promise<AuthResponse> {
+  async signup(name: string, email: string, _password: string): Promise<User> {
     if (USE_MOCKS) {
       await mockDelay();
       _master = null;
       _user = { id: newId("u"), name, email, hasMasterResume: false, plan: "free", credits: 100 };
-      return { token: "mock-token-" + newId("t"), user: _user };
+      setMockAuthed(true);
+      return _user;
     }
-    return apiFetch<AuthResponse>("/auth/signup", {
-      method: "POST",
-      body: { name, email, password: _password },
-    });
+    return (
+      await apiFetch<{ user: User }>("/auth/signup", {
+        method: "POST",
+        body: { name, email, password: _password },
+      })
+    ).user;
   },
   async magicLink(email: string): Promise<{ ok: true }> {
     if (USE_MOCKS) {
@@ -95,24 +114,25 @@ export const auth = {
     }
     return apiFetch("/auth/magic-link", { method: "POST", body: { email } });
   },
-  async oauthStart(provider: OAuthProvider): Promise<AuthResponse> {
-    if (USE_MOCKS) {
-      await mockDelay(300);
-      _user = { ..._user, hasMasterResume: !!_master };
-      return { token: `mock-oauth-${provider}-` + newId("t"), user: _user };
-    }
-    return apiFetch<AuthResponse>(`/auth/oauth/${provider}/start`, { method: "POST" });
+  /** Mock helper only — real OAuth uses a full-page redirect to oauthUrl(provider). */
+  async oauthStart(provider: OAuthProvider): Promise<User> {
+    await mockDelay(300);
+    _user = { ..._user, hasMasterResume: !!_master };
+    setMockAuthed(true);
+    return _user;
   },
   async me(): Promise<User> {
     if (USE_MOCKS) {
-      await mockDelay(200);
+      await mockDelay(150);
+      if (!mockAuthed()) throw new ApiError(401, "Unauthorized");
       return { ..._user, hasMasterResume: !!_master };
     }
-    return apiFetch<User>("/auth/me");
+    return (await apiFetch<{ user: User }>("/auth/me")).user;
   },
   async logout(): Promise<void> {
     if (USE_MOCKS) {
       await mockDelay(100);
+      setMockAuthed(false);
       return;
     }
     await apiFetch("/auth/logout", { method: "POST" });
@@ -130,10 +150,21 @@ export const resume = {
     }
     const fd = new FormData();
     fd.append("file", _file);
-    const res = await fetch(
-      (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080") + "/resume/master",
-      { method: "POST", body: fd },
-    );
+    const res = await fetch(`${BASE_URL}/resume/master`, {
+      method: "POST",
+      credentials: "include",
+      body: fd,
+    });
+    if (!res.ok) {
+      let msg = "Couldn't parse that file";
+      try {
+        const data = await res.json();
+        msg = data?.error?.message ?? msg;
+      } catch {
+        /* ignore */
+      }
+      throw new ApiError(res.status, msg);
+    }
     return (await res.json()) as MasterResume;
   },
   async getMaster(): Promise<MasterResume | null> {
@@ -253,7 +284,7 @@ export const generation = {
     }
     return apiFetch<TailoredResume>(`/sessions/${sessionId}/tailor`, { method: "POST" });
   },
-  async generateCoverLetter(sessionId: string): Promise<CoverLetter> {
+  async generateCoverLetter(sessionId: string, tone?: string): Promise<CoverLetter> {
     if (USE_MOCKS) {
       await mockDelay(900);
       const s = _sessions.get(sessionId);
@@ -269,7 +300,10 @@ export const generation = {
       chargeMockCredits(s, "cover");
       return cl;
     }
-    return apiFetch<CoverLetter>(`/sessions/${sessionId}/cover-letter`, { method: "POST" });
+    return apiFetch<CoverLetter>(`/sessions/${sessionId}/cover-letter`, {
+      method: "POST",
+      body: { tone },
+    });
   },
   async askQuestion(sessionId: string, question: string): Promise<ChatMessage> {
     if (USE_MOCKS) {
@@ -335,11 +369,9 @@ export const files = {
         { type: format === "pdf" ? "application/pdf" : "text/plain" },
       );
     }
-    const token = (await import("../auth-store")).authStore.getToken();
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080"}/files/${kind}/${sessionId}?format=${format}`,
-      { headers: token ? { Authorization: `Bearer ${token}` } : {} },
-    );
+    const res = await fetch(`${BASE_URL}/files/${kind}/${sessionId}?format=${format}`, {
+      credentials: "include",
+    });
     return await res.blob();
   },
 };

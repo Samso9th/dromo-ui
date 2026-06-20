@@ -33,9 +33,9 @@ function SignupPage() {
 
   async function onSubmit(values: FormVals) {
     try {
-      const res = await auth.signup(values.name, values.email, values.password);
-      authStore.setSession(res.token, res.user);
-      navigate({ to: res.user.hasMasterResume ? "/dashboard" : "/onboarding" });
+      const user = await auth.signup(values.name, values.email, values.password);
+      authStore.setUser(user);
+      navigate({ to: user.hasMasterResume ? "/dashboard" : "/onboarding" });
     } catch {
       toast.error("Couldn't create your account. Try again.");
     }

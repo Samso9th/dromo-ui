@@ -1,8 +1,8 @@
 import { authStore } from "../auth-store";
 import { ApiError } from "./types";
 
-const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:8080";
+export const BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:4000/api/v1";
 
 export const USE_MOCKS =
   ((import.meta.env.VITE_USE_MOCKS as string | undefined) ?? "true") !== "false";
@@ -20,22 +20,23 @@ interface RequestOptions {
   raw?: boolean;
 }
 
+/** Cookie-based: sends httpOnly auth cookies via credentials:"include". No bearer token. */
 export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, headers = {}, raw } = opts;
-  const token = authStore.getToken();
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...headers },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (res.status === 401) {
     authStore.clear();
-    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+    if (
+      typeof window !== "undefined" &&
+      !window.location.pathname.startsWith("/login") &&
+      !window.location.pathname.startsWith("/signup")
+    ) {
       window.location.replace("/login");
     }
     throw new ApiError(401, "Unauthorized");
@@ -48,9 +49,14 @@ export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Prom
     } catch {
       /* ignore */
     }
+    // Backend shape: { error: { code, message, details } }
     let msg = res.statusText || "Request failed";
-    if (data && typeof data === "object" && "message" in data) {
-      msg = String((data as { message: unknown }).message);
+    const errObj =
+      data && typeof data === "object" && "error" in data
+        ? (data as { error: unknown }).error
+        : data;
+    if (errObj && typeof errObj === "object" && "message" in errObj) {
+      msg = String((errObj as { message: unknown }).message);
     }
     throw new ApiError(res.status, msg, data);
   }
