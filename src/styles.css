@@ -1,0 +1,211 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* DynaPuff everywhere in the app UI (matches the mybizpush dev-team UI).
+     Documents (resume / cover letter / brief) use a professional serif instead. */
+  --font-sans: "DynaPuff", "Inter", system-ui, ui-sans-serif, sans-serif;
+  --font-serif: "DynaPuff", "Inter", system-ui, ui-sans-serif, sans-serif;
+  --font-document: Georgia, "Times New Roman", "Source Serif 4", serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 12px oklch(0 0 0 / 0.06);
+  --shadow-lift: 0 2px 6px oklch(0 0 0 / 0.06), 0 12px 32px oklch(0 0 0 / 0.10);
+  --shadow-deep: 0 4px 12px oklch(0 0 0 / 0.10), 0 24px 60px oklch(0 0 0 / 0.18);
+}
+
+/* Light mode — strictly grayscale */
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0 0);
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.50 0 0);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.18 0 0);
+  --destructive: oklch(0.40 0 0);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.90 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.55 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.22 0 0);
+  --sidebar-primary: oklch(0.18 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.94 0 0);
+  --sidebar-accent-foreground: oklch(0.18 0 0);
+  --sidebar-border: oklch(0.90 0 0);
+  --sidebar-ring: oklch(0.55 0 0);
+}
+
+/* Dark mode — DEFAULT — strictly grayscale */
+.dark {
+  --background: oklch(0.13 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.165 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.17 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+  --primary: oklch(0.96 0 0);
+  --primary-foreground: oklch(0.13 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.20 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.24 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+  --destructive: oklch(0.70 0 0);
+  --destructive-foreground: oklch(0.13 0 0);
+  --border: oklch(0.26 0 0);
+  --input: oklch(0.24 0 0);
+  --ring: oklch(0.55 0 0);
+  --sidebar: oklch(0.115 0 0);
+  --sidebar-foreground: oklch(0.92 0 0);
+  --sidebar-primary: oklch(0.96 0 0);
+  --sidebar-primary-foreground: oklch(0.13 0 0);
+  --sidebar-accent: oklch(0.20 0 0);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
+  --sidebar-border: oklch(0.22 0 0);
+  --sidebar-ring: oklch(0.55 0 0);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-optical-sizing: auto;
+    font-variation-settings: "wdth" 100;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-serif {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-variation-settings: "wdth" 100;
+  }
+}
+
+/* Markdown brief preview — black on white, serif headings */
+.md-prose {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.md-prose h1 {
+  font-family: var(--font-document);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.md-prose h2 {
+  font-family: var(--font-document);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 22px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ddd;
+}
+.md-prose h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 16px 0 6px;
+}
+.md-prose p {
+  margin: 0 0 10px;
+}
+.md-prose ul,
+.md-prose ol {
+  margin: 0 0 10px;
+  padding-left: 22px;
+}
+.md-prose li {
+  margin-bottom: 4px;
+}
+.md-prose blockquote {
+  margin: 0 0 12px;
+  padding: 8px 14px;
+  border-left: 3px solid #111;
+  background: #f5f5f5;
+  font-style: italic;
+}
+.md-prose strong {
+  font-weight: 700;
+}
+.md-prose hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 16px 0;
+}
+.md-prose em {
+  color: #444;
+}
+
+/* Print: only the targeted document prints, full-bleed black on white */
+@media print {
+  body.print-target-active * {
+    visibility: hidden !important;
+  }
+  body.print-target-active .print-target,
+  body.print-target-active .print-target * {
+    visibility: visible !important;
+  }
+  body.print-target-active .print-target {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  @page {
+    margin: 0.5in;
+  }
+}
