@@ -93,11 +93,11 @@ function ResumePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Editor data={data} onChange={setData} />
         </div>
-        <div className="lg:sticky lg:top-20 lg:h-[calc(100dvh-7rem)]">
-          <div className="h-full overflow-auto rounded-xl border border-border bg-muted/30 p-4 shadow-[var(--shadow-soft)]">
+        <div className="min-w-0 lg:sticky lg:top-20 lg:h-[calc(100dvh-7rem)]">
+          <div className="h-full overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-muted/30 p-4 shadow-[var(--shadow-soft)]">
             <ResumeDocument data={data} />
           </div>
         </div>

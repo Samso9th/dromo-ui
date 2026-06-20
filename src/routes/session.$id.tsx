@@ -28,8 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { generation, models as modelsApi, sessions } from "@/lib/api";
-import { downloadResumeDocx } from "@/lib/resume-docx";
+import { files, generation, models as modelsApi, sessions } from "@/lib/api";
 import { creditsStore } from "@/lib/credits-store";
 import { QA_LIMIT, RETRY_LIMIT } from "@/lib/credits";
 import { ModelPicker } from "@/components/model-picker";
@@ -154,7 +153,6 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
   const [busy, setBusy] = useState(false);
   const [diff, setDiff] = useState(false);
   const [templateId, setTemplateId] = useState(session.templateId);
-  const docRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const plan = user?.plan ?? "free";
 
@@ -223,27 +221,24 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
           <Button
             variant="outline"
             size="sm"
-            onClick={async () => {
-              if (!session.tailoredResume) return;
-              const name = session.tailoredResume.header.name.replace(/\s+/g, "_");
-              try {
-                await downloadResumeDocx(session.tailoredResume, `${name}_Resume.docx`);
-                toast.success("DOCX downloaded");
-              } catch {
-                toast.error("Couldn't build the DOCX.");
-              }
-            }}
+            onClick={() =>
+              downloadFromApi("resume", session.id, "docx", `${fileBase(session)}.docx`)
+            }
             className="gap-2"
           >
             <Download className="h-4 w-4" /> DOCX
           </Button>
-          <Button size="sm" onClick={() => printElement(docRef.current)} className="gap-2">
+          <Button
+            size="sm"
+            onClick={() => downloadFromApi("resume", session.id, "pdf", `${fileBase(session)}.pdf`)}
+            className="gap-2"
+          >
             <Download className="h-4 w-4" /> PDF
           </Button>
         </div>
       </div>
       <div className="overflow-x-auto rounded-xl border border-border bg-muted/30 p-4 shadow-[var(--shadow-soft)]">
-        <ResumeDocument ref={docRef} data={session.tailoredResume} diff={diff} template={templateId} />
+        <ResumeDocument data={session.tailoredResume} diff={diff} template={templateId} />
       </div>
     </div>
   );
@@ -341,12 +336,16 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
         <Button
           variant="outline"
           size="sm"
-          onClick={() => downloadText(text, "cover-letter.txt")}
+          onClick={() => downloadText(text, `${fileBase(session)}_CoverLetter.txt`)}
           className="gap-2"
         >
           <Download className="h-4 w-4" /> TXT
         </Button>
-        <Button size="sm" onClick={() => printElement(ref.current)} className="gap-2">
+        <Button
+          size="sm"
+          onClick={() => printElement(ref.current, `${fileBase(session)}_CoverLetter`)}
+          className="gap-2"
+        >
           <Download className="h-4 w-4" /> PDF
         </Button>
       </div>
@@ -560,7 +559,6 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
   const [format, setFormat] = useState<DocFormat>(session.interviewBrief?.format ?? "md");
   const [brief, setBrief] = useState<InterviewBrief | null>(session.interviewBrief ?? null);
   const [busy, setBusy] = useState(false);
-  const docRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const plan = user?.plan ?? "free";
   const retriesLeft = RETRY_LIMIT[plan] - session.retries.brief;
@@ -581,16 +579,14 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
     }
   }
 
-  function download() {
+  async function download() {
     if (!brief) return;
-    const base = `interview-brief-${session.company}`.replace(/\s+/g, "-").toLowerCase();
-    if (format === "md") downloadBlob(brief.content, `${base}.md`, "text/markdown");
-    else if (format === "txt") downloadBlob(stripMarkdown(brief.content), `${base}.txt`, "text/plain");
-    else if (format === "pdf") printElement(docRef.current);
-    else if (format === "docx") {
-      const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Interview Brief</title></head><body style="font-family:Calibri,Arial,sans-serif">${docRef.current?.innerHTML ?? ""}</body></html>`;
-      downloadBlob(html, `${base}.doc`, "application/msword");
-    }
+    await downloadFromApi(
+      "interview-brief",
+      session.id,
+      format,
+      `${fileBase(session)}_InterviewBrief.${format}`,
+    );
   }
 
   return (
@@ -662,7 +658,6 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
       <div className="rounded-xl border border-border bg-muted/30 p-4 shadow-[var(--shadow-soft)]">
         {brief ? (
           <div
-            ref={docRef}
             className="md-prose"
             style={{ background: "#fff", color: "#111", padding: "40px 48px", borderRadius: 8 }}
           >
@@ -682,34 +677,47 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
 }
 
 /* helpers */
-function stripMarkdown(md: string): string {
-  return md
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*>\s?/gm, "")
-    .replace(/^\s*[-*]\s+/gm, "• ")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/_(.+?)_/g, "$1")
-    .replace(/`(.+?)`/g, "$1")
-    .replace(/^---$/gm, "");
+
+/** Download filename base: "FullName_Role" (sanitized) from the session's tailored resume + role. */
+function sanitizePart(s: string): string {
+  return (s || "").trim().replace(/[^\w]+/g, "_").replace(/^_+|_+$/g, "");
+}
+function fileBase(session: GenerationSession): string {
+  const name = sanitizePart(session.tailoredResume?.header.name ?? "") || "Resume";
+  const role = sanitizePart(session.role) || "Role";
+  return `${name}_${role}`;
 }
 
-function downloadBlob(content: string, filename: string, type: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+/** Fetch a server-rendered document (PDF/DOCX/TXT/MD) and save it with the given filename. */
+async function downloadFromApi(
+  kind: "resume" | "cover-letter" | "interview-brief",
+  sessionId: string,
+  format: DocFormat,
+  filename: string,
+): Promise<void> {
+  try {
+    const blob = await files.downloadDoc(kind, sessionId, format);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : "Couldn't download that file.");
+  }
 }
 
-function printElement(el: HTMLElement | null) {
+function printElement(el: HTMLElement | null, title?: string) {
   if (!el) return;
+  const prevTitle = document.title;
+  if (title) document.title = title; // print-to-PDF suggests the document title as filename
   document.body.classList.add("print-target-active");
   el.classList.add("print-target");
   const cleanup = () => {
     el.classList.remove("print-target");
     document.body.classList.remove("print-target-active");
+    if (title) document.title = prevTitle;
     window.removeEventListener("afterprint", cleanup);
   };
   window.addEventListener("afterprint", cleanup);

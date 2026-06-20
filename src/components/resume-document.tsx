@@ -34,7 +34,18 @@ export const ResumeDocument = forwardRef<HTMLDivElement, Props>(function ResumeD
     <div
       ref={ref}
       className={cn("resume-document", className)}
-      style={{ background: "#fff", color: "#111", fontFamily, padding: pad, lineHeight: lh, fontSize: base }}
+      style={{
+        background: "#fff",
+        color: "#111",
+        fontFamily,
+        padding: pad,
+        lineHeight: lh,
+        fontSize: base,
+        width: "100%",
+        maxWidth: "100%",
+        overflowWrap: "anywhere",
+        wordBreak: "break-word",
+      }}
     >
       <Header data={data} cfg={cfg} />
       {cfg.columns === 2 && cfg.sidebar ? (
@@ -273,8 +284,8 @@ function Skills({ data, diff, stacked }: { data: ResumeData; diff: boolean; stac
 function Row({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-      <span>{left}</span>
-      <span style={{ textAlign: "right" }}>{right}</span>
+      <span style={{ minWidth: 0 }}>{left}</span>
+      <span style={{ textAlign: "right", flexShrink: 0, whiteSpace: "nowrap" }}>{right}</span>
     </div>
   );
 }
