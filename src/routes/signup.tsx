@@ -33,7 +33,11 @@ function SignupPage() {
 
   async function onSubmit(values: FormVals) {
     try {
-      const user = await auth.signup(values.name, values.email, values.password);
+      const user = await auth.signup(
+        values.name,
+        values.email,
+        values.password,
+      );
       authStore.setUser(user);
       navigate({ to: user.hasMasterResume ? "/dashboard" : "/onboarding" });
     } catch {
@@ -48,13 +52,20 @@ function SignupPage() {
       footer={
         <>
           Already have one?{" "}
-          <Link to="/login" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/login"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Sign in
           </Link>
         </>
       }
     >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+        noValidate
+      >
         <div className="space-y-1.5">
           <Label htmlFor="name">Name</Label>
           <Input
@@ -102,14 +113,20 @@ function SignupPage() {
             </p>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? "Creating account…" : "Create account"}
         </Button>
       </form>
 
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          or
+        </span>
         <Separator className="flex-1" />
       </div>
 

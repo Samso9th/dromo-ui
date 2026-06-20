@@ -30,7 +30,11 @@ function LinkedInIcon() {
   );
 }
 
-const PROVIDERS: { id: OAuthProvider; label: string; Icon: () => React.ReactElement }[] = [
+const PROVIDERS: {
+  id: OAuthProvider;
+  label: string;
+  Icon: () => React.ReactElement;
+}[] = [
   { id: "google", label: "Google", Icon: GoogleIcon },
   { id: "github", label: "GitHub", Icon: GitHubIcon },
   { id: "linkedin", label: "LinkedIn", Icon: LinkedInIcon },
@@ -71,7 +75,9 @@ export function OAuthButtons() {
           className="h-10 gap-2"
         >
           <Icon />
-          <span className="sr-only sm:not-sr-only sm:inline text-xs">{label}</span>
+          <span className="sr-only sm:not-sr-only sm:inline text-xs">
+            {label}
+          </span>
         </Button>
       ))}
     </div>

@@ -80,14 +80,18 @@ function ResumePage() {
   }
 
   return (
-    <div ref={ref} className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
+    <div
+      ref={ref}
+      className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8"
+    >
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-serif text-2xl font-semibold tracking-tight md:text-3xl">
             Master resume
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            The single source of truth that every tailored version is built from.
+            The single source of truth that every tailored version is built
+            from.
           </p>
         </div>
       </div>
@@ -133,16 +137,47 @@ function Editor({
     onChange({ ...data, [k]: v });
 
   return (
-    <Accordion type="multiple" defaultValue={["header", "summary", "skills", "work"]}>
+    <Accordion
+      type="multiple"
+      defaultValue={["header", "summary", "skills", "work"]}
+    >
       <Section value="header" label="Header">
         <Grid>
-          <Field label="Name" value={data.header.name} onChange={(v) => upd("header", { ...data.header, name: v })} />
-          <Field label="Location" value={data.header.location} onChange={(v) => upd("header", { ...data.header, location: v })} />
-          <Field label="Email" value={data.header.email} onChange={(v) => upd("header", { ...data.header, email: v })} />
-          <Field label="Phone" value={data.header.phone} onChange={(v) => upd("header", { ...data.header, phone: v })} />
-          <Field label="GitHub" value={data.header.github ?? ""} onChange={(v) => upd("header", { ...data.header, github: v })} />
-          <Field label="LinkedIn" value={data.header.linkedin ?? ""} onChange={(v) => upd("header", { ...data.header, linkedin: v })} />
-          <Field label="Website" value={data.header.website ?? ""} onChange={(v) => upd("header", { ...data.header, website: v })} />
+          <Field
+            label="Name"
+            value={data.header.name}
+            onChange={(v) => upd("header", { ...data.header, name: v })}
+          />
+          <Field
+            label="Location"
+            value={data.header.location}
+            onChange={(v) => upd("header", { ...data.header, location: v })}
+          />
+          <Field
+            label="Email"
+            value={data.header.email}
+            onChange={(v) => upd("header", { ...data.header, email: v })}
+          />
+          <Field
+            label="Phone"
+            value={data.header.phone}
+            onChange={(v) => upd("header", { ...data.header, phone: v })}
+          />
+          <Field
+            label="GitHub"
+            value={data.header.github ?? ""}
+            onChange={(v) => upd("header", { ...data.header, github: v })}
+          />
+          <Field
+            label="LinkedIn"
+            value={data.header.linkedin ?? ""}
+            onChange={(v) => upd("header", { ...data.header, linkedin: v })}
+          />
+          <Field
+            label="Website"
+            value={data.header.website ?? ""}
+            onChange={(v) => upd("header", { ...data.header, website: v })}
+          />
         </Grid>
       </Section>
 
@@ -173,13 +208,35 @@ function Editor({
           render={(item, set) => (
             <>
               <Grid>
-                <Field label="Company" value={item.company} onChange={(v) => set({ ...item, company: v })} />
-                <Field label="Company URL" value={item.companyUrl ?? ""} onChange={(v) => set({ ...item, companyUrl: v })} />
-                <Field label="Role" value={item.role} onChange={(v) => set({ ...item, role: v })} />
+                <Field
+                  label="Company"
+                  value={item.company}
+                  onChange={(v) => set({ ...item, company: v })}
+                />
+                <Field
+                  label="Company URL"
+                  value={item.companyUrl ?? ""}
+                  onChange={(v) => set({ ...item, companyUrl: v })}
+                />
+                <Field
+                  label="Role"
+                  value={item.role}
+                  onChange={(v) => set({ ...item, role: v })}
+                />
                 <div>
                   <Label className="text-xs">Location type</Label>
-                  <Select value={item.locationType} onValueChange={(v) => set({ ...item, locationType: v as typeof item.locationType })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <Select
+                    value={item.locationType}
+                    onValueChange={(v) =>
+                      set({
+                        ...item,
+                        locationType: v as typeof item.locationType,
+                      })
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="remote">Remote</SelectItem>
                       <SelectItem value="hybrid">Hybrid</SelectItem>
@@ -187,10 +244,20 @@ function Editor({
                     </SelectContent>
                   </Select>
                 </div>
-                <Field label="Location" value={item.location ?? ""} onChange={(v) => set({ ...item, location: v })} />
-                <PeriodEditor value={item.period} onChange={(p) => set({ ...item, period: p })} />
+                <Field
+                  label="Location"
+                  value={item.location ?? ""}
+                  onChange={(v) => set({ ...item, location: v })}
+                />
+                <PeriodEditor
+                  value={item.period}
+                  onChange={(p) => set({ ...item, period: p })}
+                />
               </Grid>
-              <BulletsEditor value={item.bullets} onChange={(b) => set({ ...item, bullets: b })} />
+              <BulletsEditor
+                value={item.bullets}
+                onChange={(b) => set({ ...item, bullets: b })}
+              />
             </>
           )}
           titleOf={(i) => i.company || "New role"}
@@ -201,17 +268,43 @@ function Editor({
         <ListEditor
           items={data.projects}
           onChange={(v) => upd("projects", v)}
-          newItem={() => ({ name: "", period: { start: "", end: "" }, bullets: [] })}
+          newItem={() => ({
+            name: "",
+            period: { start: "", end: "" },
+            bullets: [],
+          })}
           render={(item, set) => (
             <>
               <Grid>
-                <Field label="Name" value={item.name} onChange={(v) => set({ ...item, name: v })} />
-                <Field label="URL" value={item.url ?? ""} onChange={(v) => set({ ...item, url: v })} />
-                <Field label="Role" value={item.role ?? ""} onChange={(v) => set({ ...item, role: v })} />
-                <Field label="Location" value={item.location ?? ""} onChange={(v) => set({ ...item, location: v })} />
-                <PeriodEditor value={item.period} onChange={(p) => set({ ...item, period: p })} />
+                <Field
+                  label="Name"
+                  value={item.name}
+                  onChange={(v) => set({ ...item, name: v })}
+                />
+                <Field
+                  label="URL"
+                  value={item.url ?? ""}
+                  onChange={(v) => set({ ...item, url: v })}
+                />
+                <Field
+                  label="Role"
+                  value={item.role ?? ""}
+                  onChange={(v) => set({ ...item, role: v })}
+                />
+                <Field
+                  label="Location"
+                  value={item.location ?? ""}
+                  onChange={(v) => set({ ...item, location: v })}
+                />
+                <PeriodEditor
+                  value={item.period}
+                  onChange={(p) => set({ ...item, period: p })}
+                />
               </Grid>
-              <BulletsEditor value={item.bullets} onChange={(b) => set({ ...item, bullets: b })} />
+              <BulletsEditor
+                value={item.bullets}
+                onChange={(b) => set({ ...item, bullets: b })}
+              />
             </>
           )}
           titleOf={(i) => i.name || "New project"}
@@ -222,16 +315,39 @@ function Editor({
         <ListEditor
           items={data.extracurriculars}
           onChange={(v) => upd("extracurriculars", v)}
-          newItem={() => ({ name: "", where: "", period: { start: "", end: "Present" }, bullets: [] })}
+          newItem={() => ({
+            name: "",
+            where: "",
+            period: { start: "", end: "Present" },
+            bullets: [],
+          })}
           render={(item, set) => (
             <>
               <Grid>
-                <Field label="Name" value={item.name} onChange={(v) => set({ ...item, name: v })} />
-                <Field label="Where" value={item.where} onChange={(v) => set({ ...item, where: v })} />
-                <Field label="Role" value={item.role ?? ""} onChange={(v) => set({ ...item, role: v })} />
-                <PeriodEditor value={item.period} onChange={(p) => set({ ...item, period: p })} />
+                <Field
+                  label="Name"
+                  value={item.name}
+                  onChange={(v) => set({ ...item, name: v })}
+                />
+                <Field
+                  label="Where"
+                  value={item.where}
+                  onChange={(v) => set({ ...item, where: v })}
+                />
+                <Field
+                  label="Role"
+                  value={item.role ?? ""}
+                  onChange={(v) => set({ ...item, role: v })}
+                />
+                <PeriodEditor
+                  value={item.period}
+                  onChange={(p) => set({ ...item, period: p })}
+                />
               </Grid>
-              <BulletsEditor value={item.bullets} onChange={(b) => set({ ...item, bullets: b })} />
+              <BulletsEditor
+                value={item.bullets}
+                onChange={(b) => set({ ...item, bullets: b })}
+              />
             </>
           )}
           titleOf={(i) => i.name || "New entry"}
@@ -242,13 +358,32 @@ function Editor({
         <ListEditor
           items={data.education}
           onChange={(v) => upd("education", v)}
-          newItem={(): MasterResume["education"][number] => ({ institution: "", course: "", period: { start: "", end: "" } })}
+          newItem={(): MasterResume["education"][number] => ({
+            institution: "",
+            course: "",
+            period: { start: "", end: "" },
+          })}
           render={(item, set) => (
             <Grid>
-              <Field label="Institution" value={item.institution} onChange={(v) => set({ ...item, institution: v })} />
-              <Field label="Course" value={item.course} onChange={(v) => set({ ...item, course: v })} />
-              <PeriodEditor value={item.period} onChange={(p) => set({ ...item, period: p })} />
-              <Field label="GPA" value={item.gpa ?? ""} onChange={(v) => set({ ...item, gpa: v })} />
+              <Field
+                label="Institution"
+                value={item.institution}
+                onChange={(v) => set({ ...item, institution: v })}
+              />
+              <Field
+                label="Course"
+                value={item.course}
+                onChange={(v) => set({ ...item, course: v })}
+              />
+              <PeriodEditor
+                value={item.period}
+                onChange={(p) => set({ ...item, period: p })}
+              />
+              <Field
+                label="GPA"
+                value={item.gpa ?? ""}
+                onChange={(v) => set({ ...item, gpa: v })}
+              />
             </Grid>
           )}
           titleOf={(i) => i.institution || "New education"}
@@ -259,11 +394,22 @@ function Editor({
         <ListEditor
           items={data.certifications}
           onChange={(v) => upd("certifications", v)}
-          newItem={(): MasterResume["certifications"][number] => ({ name: "", details: "" })}
+          newItem={(): MasterResume["certifications"][number] => ({
+            name: "",
+            details: "",
+          })}
           render={(item, set) => (
             <div className="space-y-3">
-              <Field label="Name" value={item.name} onChange={(v) => set({ ...item, name: v })} />
-              <Field label="Awarded date" value={item.awardedDate ?? ""} onChange={(v) => set({ ...item, awardedDate: v })} />
+              <Field
+                label="Name"
+                value={item.name}
+                onChange={(v) => set({ ...item, name: v })}
+              />
+              <Field
+                label="Awarded date"
+                value={item.awardedDate ?? ""}
+                onChange={(v) => set({ ...item, awardedDate: v })}
+              />
               <div>
                 <Label className="text-xs">Details</Label>
                 <Textarea
@@ -283,9 +429,20 @@ function Editor({
 }
 
 /* primitives */
-function Section({ value, label, children }: { value: string; label: string; children: React.ReactNode }) {
+function Section({
+  value,
+  label,
+  children,
+}: {
+  value: string;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
-    <AccordionItem value={value} className="rounded-lg border border-border bg-card px-4 mb-2">
+    <AccordionItem
+      value={value}
+      className="rounded-lg border border-border bg-card px-4 mb-2"
+    >
       <AccordionTrigger className="font-medium">{label}</AccordionTrigger>
       <AccordionContent className="pt-2 pb-4">{children}</AccordionContent>
     </AccordionItem>
@@ -293,7 +450,9 @@ function Section({ value, label, children }: { value: string; label: string; chi
 }
 
 function Grid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>;
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
+  );
 }
 
 function Field({
@@ -308,7 +467,11 @@ function Field({
   return (
     <div>
       <Label className="text-xs">{label}</Label>
-      <Input className="mt-1" value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input
+        className="mt-1"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }
@@ -323,7 +486,11 @@ function PeriodEditor({
   const isPresent = value.end === "Present";
   return (
     <>
-      <Field label="Start" value={value.start} onChange={(v) => onChange({ ...value, start: v })} />
+      <Field
+        label="Start"
+        value={value.start}
+        onChange={(v) => onChange({ ...value, start: v })}
+      />
       <div>
         <Label className="text-xs">End</Label>
         <div className="mt-1 flex items-center gap-2">
@@ -336,7 +503,9 @@ function PeriodEditor({
           <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
             <Switch
               checked={isPresent}
-              onCheckedChange={(v) => onChange({ ...value, end: v ? "Present" : "" })}
+              onCheckedChange={(v) =>
+                onChange({ ...value, end: v ? "Present" : "" })
+              }
             />
             Present
           </label>
@@ -346,7 +515,13 @@ function PeriodEditor({
   );
 }
 
-function SkillsEditor({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+function SkillsEditor({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
   const [input, setInput] = useState("");
   function add() {
     const v = input.trim();
@@ -475,13 +650,30 @@ function ListEditor<T>({
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className="truncate text-sm font-medium">{titleOf(item)}</p>
             <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                aria-label="Move up"
+              >
                 <ArrowUp className="h-4 w-4" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label="Move down">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => move(i, 1)}
+                disabled={i === items.length - 1}
+                aria-label="Move down"
+              >
                 <ArrowDown className="h-4 w-4" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(i)} aria-label="Remove">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => remove(i)}
+                aria-label="Remove"
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -489,7 +681,12 @@ function ListEditor<T>({
           {render(item, (next) => setAt(i, next))}
         </div>
       ))}
-      <Button type="button" variant="outline" size="sm" onClick={() => onChange([...items, newItem()])}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => onChange([...items, newItem()])}
+      >
         <Plus className="h-4 w-4" /> Add
       </Button>
     </div>

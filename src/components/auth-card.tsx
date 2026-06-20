@@ -31,7 +31,9 @@ export function AuthCard({
         className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-lift)]"
       >
         <div className="mb-6 text-center">
-          <h1 className="font-serif text-2xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="font-serif text-2xl font-semibold tracking-tight">
+            {title}
+          </h1>
           {subtitle && (
             <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
           )}

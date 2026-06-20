@@ -13,7 +13,10 @@ export const CREDIT_USD = 0.01; // 1 credit = $0.01 retail
 export type ActionType = "tailor" | "cover" | "qa" | "brief";
 
 /** Per-action token estimates + a credit floor (see docs/monetization.md §1). */
-export const ACTION_TOKENS: Record<ActionType, { in: number; out: number; floor: number }> = {
+export const ACTION_TOKENS: Record<
+  ActionType,
+  { in: number; out: number; floor: number }
+> = {
   tailor: { in: 6000, out: 3000, floor: 2 },
   cover: { in: 4000, out: 1000, floor: 2 },
   qa: { in: 3000, out: 400, floor: 1 },
@@ -22,11 +25,16 @@ export const ACTION_TOKENS: Record<ActionType, { in: number; out: number; floor:
 
 export function creditsFor(model: AiModel, action: ActionType): number {
   const t = ACTION_TOKENS[action];
-  const rawUsd = (t.in * model.pricing.in + t.out * model.pricing.out) / 1_000_000;
+  const rawUsd =
+    (t.in * model.pricing.in + t.out * model.pricing.out) / 1_000_000;
   return Math.max(t.floor, Math.ceil((rawUsd * MARKUP) / CREDIT_USD));
 }
 
-const TIER_RANK: Record<ModelTier, number> = { economy: 0, standard: 1, premium: 2 };
+const TIER_RANK: Record<ModelTier, number> = {
+  economy: 0,
+  standard: 1,
+  premium: 2,
+};
 const PLAN_MAX: Record<Plan, number> = { free: 0, pro: 1, premium: 2 };
 
 /** Is this model included in the user's plan? */
@@ -36,7 +44,11 @@ export function modelUnlocked(model: AiModel, plan: Plan): boolean {
 
 /** The minimum plan that unlocks a model — for "Upgrade to Pro/Premium" copy. */
 export function requiredPlan(model: AiModel): Plan {
-  return model.tier === "economy" ? "free" : model.tier === "standard" ? "pro" : "premium";
+  return model.tier === "economy"
+    ? "free"
+    : model.tier === "standard"
+      ? "pro"
+      : "premium";
 }
 
 export const PLAN_LABEL: Record<Plan, string> = {

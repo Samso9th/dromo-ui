@@ -13,7 +13,9 @@ export function PageStub({
   const ref = useReveal<HTMLDivElement>();
   return (
     <div ref={ref} className="mx-auto w-full max-w-4xl px-6 py-12">
-      <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight">
+        {title}
+      </h1>
       {subtitle && (
         <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
       )}

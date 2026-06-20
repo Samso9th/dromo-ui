@@ -1,6 +1,10 @@
 import { forwardRef } from "react";
 import type { MasterResume, TailoredResume } from "@/lib/api/types";
-import { getTemplate, type SectionKey, type TemplateConfig } from "@/lib/templates";
+import {
+  getTemplate,
+  type SectionKey,
+  type TemplateConfig,
+} from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -16,55 +20,71 @@ interface Props {
  * Config-driven, print-faithful, always black-on-white resume. The chosen template config
  * (font, columns, heading style, density, name treatment) drives the layout.
  */
-export const ResumeDocument = forwardRef<HTMLDivElement, Props>(function ResumeDocument(
-  { data, diff = false, template = "classic", className },
-  ref,
-) {
-  const cfg = getTemplate(template);
-  const fontFamily =
-    cfg.font === "serif"
-      ? 'Georgia, "Times New Roman", "Source Serif 4", serif'
-      : 'Helvetica, Arial, "Inter", sans-serif';
+export const ResumeDocument = forwardRef<HTMLDivElement, Props>(
+  function ResumeDocument(
+    { data, diff = false, template = "classic", className },
+    ref,
+  ) {
+    const cfg = getTemplate(template);
+    const fontFamily =
+      cfg.font === "serif"
+        ? 'Georgia, "Times New Roman", "Source Serif 4", serif'
+        : 'Helvetica, Arial, "Inter", sans-serif';
 
-  const base = cfg.density === "compact" ? 12 : cfg.density === "airy" ? 13.5 : 13;
-  const lh = cfg.density === "compact" ? 1.32 : cfg.density === "airy" ? 1.6 : 1.45;
-  const pad = cfg.density === "compact" ? "40px 48px" : cfg.density === "airy" ? "60px 64px" : "48px 56px";
+    const base =
+      cfg.density === "compact" ? 12 : cfg.density === "airy" ? 13.5 : 13;
+    const lh =
+      cfg.density === "compact" ? 1.32 : cfg.density === "airy" ? 1.6 : 1.45;
+    const pad =
+      cfg.density === "compact"
+        ? "40px 48px"
+        : cfg.density === "airy"
+          ? "60px 64px"
+          : "48px 56px";
 
-  return (
-    <div
-      ref={ref}
-      className={cn("resume-document", className)}
-      style={{
-        background: "#fff",
-        color: "#111",
-        fontFamily,
-        padding: pad,
-        lineHeight: lh,
-        fontSize: base,
-        width: "100%",
-        maxWidth: "100%",
-        overflowWrap: "anywhere",
-        wordBreak: "break-word",
-      }}
-    >
-      <Header data={data} cfg={cfg} />
-      {cfg.columns === 2 && cfg.sidebar ? (
-        <TwoColumn data={data} cfg={cfg} diff={diff} />
-      ) : (
-        <SingleColumn data={data} cfg={cfg} diff={diff} />
-      )}
-    </div>
-  );
-});
+    return (
+      <div
+        ref={ref}
+        className={cn("resume-document", className)}
+        style={{
+          background: "#fff",
+          color: "#111",
+          fontFamily,
+          padding: pad,
+          lineHeight: lh,
+          fontSize: base,
+          width: "100%",
+          maxWidth: "100%",
+          overflowWrap: "anywhere",
+          wordBreak: "break-word",
+        }}
+      >
+        <Header data={data} cfg={cfg} />
+        {cfg.columns === 2 && cfg.sidebar ? (
+          <TwoColumn data={data} cfg={cfg} diff={diff} />
+        ) : (
+          <SingleColumn data={data} cfg={cfg} diff={diff} />
+        )}
+      </div>
+    );
+  },
+);
 
 /* ───────────────────────── header ───────────────────────── */
 
 function Header({ data, cfg }: { data: ResumeData; cfg: TemplateConfig }) {
   const h = data.header;
-  const contact = [h.email, h.phone, h.github, h.linkedin, h.website].filter(Boolean);
+  const contact = [h.email, h.phone, h.github, h.linkedin, h.website].filter(
+    Boolean,
+  );
   const align = cfg.nameAlign;
   return (
-    <header style={{ textAlign: align, marginBottom: cfg.density === "airy" ? 24 : 16 }}>
+    <header
+      style={{
+        textAlign: align,
+        marginBottom: cfg.density === "airy" ? 24 : 16,
+      }}
+    >
       <h1
         style={{
           fontSize: cfg.nameSize,
@@ -76,12 +96,16 @@ function Header({ data, cfg }: { data: ResumeData; cfg: TemplateConfig }) {
       >
         {h.name}
       </h1>
-      {h.location && <div style={{ marginTop: 4, fontSize: 12 }}>{h.location}</div>}
+      {h.location && (
+        <div style={{ marginTop: 4, fontSize: 12 }}>{h.location}</div>
+      )}
       <div style={{ marginTop: 4, fontSize: 12 }}>
         {contact.map((v, i) => (
           <span key={i}>
             <span style={{ textDecoration: "underline" }}>{v}</span>
-            {i < contact.length - 1 && <span style={{ margin: "0 6px" }}>|</span>}
+            {i < contact.length - 1 && (
+              <span style={{ margin: "0 6px" }}>|</span>
+            )}
           </span>
         ))}
       </div>
@@ -95,7 +119,13 @@ function SingleColumn({ data, cfg, diff }: LayoutProps) {
   return (
     <>
       {ORDER.map((key) => (
-        <SectionByKey key={key} sectionKey={key} data={data} cfg={cfg} diff={diff} />
+        <SectionByKey
+          key={key}
+          sectionKey={key}
+          data={data}
+          cfg={cfg}
+          diff={diff}
+        />
       ))}
     </>
   );
@@ -108,12 +138,24 @@ function TwoColumn({ data, cfg, diff }: LayoutProps) {
     <div style={{ display: "flex", gap: 28 }}>
       <aside style={{ width: "33%", flexShrink: 0 }}>
         {sidebar.map((key) => (
-          <SectionByKey key={key} sectionKey={key} data={data} cfg={cfg} diff={diff} />
+          <SectionByKey
+            key={key}
+            sectionKey={key}
+            data={data}
+            cfg={cfg}
+            diff={diff}
+          />
         ))}
       </aside>
       <div style={{ flex: 1, minWidth: 0 }}>
         {main.map((key) => (
-          <SectionByKey key={key} sectionKey={key} data={data} cfg={cfg} diff={diff} />
+          <SectionByKey
+            key={key}
+            sectionKey={key}
+            data={data}
+            cfg={cfg}
+            diff={diff}
+          />
         ))}
       </div>
     </div>
@@ -208,8 +250,16 @@ function SectionByKey({
         <Section title="Education" cfg={cfg}>
           {data.education.map((ed, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
-              <Row left={<strong>{ed.institution}</strong>} right={<strong>{`${ed.period.start} – ${ed.period.end}`}</strong>} />
-              <Row left={<em>{ed.course}</em>} right={ed.gpa ? <em>GPA {ed.gpa}</em> : null} />
+              <Row
+                left={<strong>{ed.institution}</strong>}
+                right={
+                  <strong>{`${ed.period.start} – ${ed.period.end}`}</strong>
+                }
+              />
+              <Row
+                left={<em>{ed.course}</em>}
+                right={ed.gpa ? <em>GPA {ed.gpa}</em> : null}
+              />
             </div>
           ))}
         </Section>
@@ -219,7 +269,10 @@ function SectionByKey({
         <Section title="Certifications" cfg={cfg}>
           {data.certifications.map((c, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
-              <Row left={<strong>{c.name}</strong>} right={c.awardedDate ? <strong>{c.awardedDate}</strong> : null} />
+              <Row
+                left={<strong>{c.name}</strong>}
+                right={c.awardedDate ? <strong>{c.awardedDate}</strong> : null}
+              />
               <p style={{ margin: "2px 0 0 0" }}>{c.details}</p>
             </div>
           ))}
@@ -230,13 +283,27 @@ function SectionByKey({
   }
 }
 
-function Section({ title, cfg, children }: { title: string; cfg: TemplateConfig; children: React.ReactNode }) {
+function Section({
+  title,
+  cfg,
+  children,
+}: {
+  title: string;
+  cfg: TemplateConfig;
+  children: React.ReactNode;
+}) {
   const gap = cfg.density === "compact" ? 12 : cfg.density === "airy" ? 24 : 18;
   const headingStyle: React.CSSProperties =
     cfg.heading === "plain-bold"
       ? { fontSize: 13, fontWeight: 700, margin: 0 }
       : cfg.heading === "caps-plain"
-        ? { fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }
+        ? {
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            margin: 0,
+          }
         : {
             fontSize: 11,
             fontWeight: 700,
@@ -254,7 +321,15 @@ function Section({ title, cfg, children }: { title: string; cfg: TemplateConfig;
   );
 }
 
-function Skills({ data, diff, stacked }: { data: ResumeData; diff: boolean; stacked: boolean }) {
+function Skills({
+  data,
+  diff,
+  stacked,
+}: {
+  data: ResumeData;
+  diff: boolean;
+  stacked: boolean;
+}) {
   const t = data as Partial<TailoredResume>;
   const added = new Set((t.matchedSkills ?? []).map((s) => s.toLowerCase()));
   const removed = t.removedSkills ?? [];
@@ -265,7 +340,15 @@ function Skills({ data, diff, stacked }: { data: ResumeData; diff: boolean; stac
         const isAdded = diff && added.has(s.toLowerCase());
         return (
           <span key={s}>
-            <span style={isAdded ? { fontWeight: 700, textDecoration: "underline" } : undefined}>{s}</span>
+            <span
+              style={
+                isAdded
+                  ? { fontWeight: 700, textDecoration: "underline" }
+                  : undefined
+              }
+            >
+              {s}
+            </span>
             {i < data.skills.length - 1 && sep}
           </span>
         );
@@ -274,18 +357,28 @@ function Skills({ data, diff, stacked }: { data: ResumeData; diff: boolean; stac
         removed.map((s) => (
           <span key={s}>
             {sep}
-            <span style={{ textDecoration: "line-through", opacity: 0.55 }}>{s}</span>
+            <span style={{ textDecoration: "line-through", opacity: 0.55 }}>
+              {s}
+            </span>
           </span>
         ))}
     </p>
   );
 }
 
-function Row({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
+function Row({
+  left,
+  right,
+}: {
+  left: React.ReactNode;
+  right: React.ReactNode;
+}) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
       <span style={{ minWidth: 0 }}>{left}</span>
-      <span style={{ textAlign: "right", flexShrink: 0, whiteSpace: "nowrap" }}>{right}</span>
+      <span style={{ textAlign: "right", flexShrink: 0, whiteSpace: "nowrap" }}>
+        {right}
+      </span>
     </div>
   );
 }
@@ -311,13 +404,26 @@ function Entry({
         left={
           <span>
             <strong>{left}</strong>
-            {leftSub && <span style={{ marginLeft: 8, textDecoration: "underline", fontSize: 12 }}>{leftSub}</span>}
+            {leftSub && (
+              <span
+                style={{
+                  marginLeft: 8,
+                  textDecoration: "underline",
+                  fontSize: 12,
+                }}
+              >
+                {leftSub}
+              </span>
+            )}
           </span>
         }
         right={<strong>{right}</strong>}
       />
       {(role || location) && (
-        <Row left={role ? <em>{role}</em> : null} right={location ? <em>{location}</em> : null} />
+        <Row
+          left={role ? <em>{role}</em> : null}
+          right={location ? <em>{location}</em> : null}
+        />
       )}
       {bullets.length > 0 && (
         <ul style={{ margin: "4px 0 0 18px", padding: 0 }}>

@@ -6,7 +6,9 @@ export const Route = createFileRoute("/")({
   // localStorage, so unauthenticated visitors are redirected to /login during
   // SSR (no blank screen). Authenticated client navigations go to /dashboard.
   beforeLoad: () => {
-    throw redirect({ to: authStore.isAuthenticated() ? "/dashboard" : "/login" });
+    throw redirect({
+      to: authStore.isAuthenticated() ? "/dashboard" : "/login",
+    });
   },
   component: () => null,
 });

@@ -33,15 +33,29 @@ function BillingPage() {
     void billing.getTransactions().then(setTxns);
   }, []);
 
-  async function checkout(label: string, input: Parameters<typeof billing.startCheckout>[0]) {
-    toast.loading(`Starting ${input.method === "stripe" ? "card" : "Dubu Pay"} checkout…`, { id: "co" });
+  async function checkout(
+    label: string,
+    input: Parameters<typeof billing.startCheckout>[0],
+  ) {
+    toast.loading(
+      `Starting ${input.method === "stripe" ? "card" : "Dubu Pay"} checkout…`,
+      { id: "co" },
+    );
     await billing.startCheckout(input);
-    toast.success(`${label} — checkout will open here once payments are wired up.`, { id: "co" });
+    toast.success(
+      `${label} — checkout will open here once payments are wired up.`,
+      { id: "co" },
+    );
   }
 
   return (
-    <div ref={ref} className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-12">
-      <h1 className="font-serif text-3xl font-semibold tracking-tight md:text-4xl">Billing</h1>
+    <div
+      ref={ref}
+      className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-12"
+    >
+      <h1 className="font-serif text-3xl font-semibold tracking-tight md:text-4xl">
+        Billing
+      </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Manage your plan, credits, and payment method.
       </p>
@@ -53,16 +67,24 @@ function BillingPage() {
             <Coins className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Credit balance</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Credit balance
+            </p>
             <p className="font-serif text-2xl font-semibold tabular-nums">
               {loaded ? balance.toLocaleString() : "—"}{" "}
-              <span className="text-sm font-normal text-muted-foreground">credits</span>
+              <span className="text-sm font-normal text-muted-foreground">
+                credits
+              </span>
             </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Current plan</p>
-          <p className="font-serif text-2xl font-semibold">{PLAN_LABEL[plan]}</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            Current plan
+          </p>
+          <p className="font-serif text-2xl font-semibold">
+            {PLAN_LABEL[plan]}
+          </p>
         </div>
       </div>
 
@@ -75,7 +97,11 @@ function BillingPage() {
             plan={p}
             current={plan}
             onSelect={() =>
-              checkout(`${p.name} plan`, { kind: "subscription", planId: p.id, method: "stripe" })
+              checkout(`${p.name} plan`, {
+                kind: "subscription",
+                planId: p.id,
+                method: "stripe",
+              })
             }
           />
         ))}
@@ -96,7 +122,9 @@ function BillingPage() {
               <p className="font-serif text-xl font-semibold tabular-nums">
                 {pack.credits.toLocaleString()}
               </p>
-              <p className="text-xs text-muted-foreground">credits · ${pack.price.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">
+                credits · ${pack.price.toFixed(2)}
+              </p>
             </div>
             <Button
               size="sm"
@@ -120,36 +148,53 @@ function BillingPage() {
       <h2 className="mt-10 font-serif text-xl font-semibold">Payment method</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <button
-          onClick={() => toast.message("Card payments (Stripe) — wired up with the API.")}
+          onClick={() =>
+            toast.message("Card payments (Stripe) — wired up with the API.")
+          }
           className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-[var(--shadow-soft)] transition-colors hover:bg-accent"
         >
           <CreditCard className="h-5 w-5" />
           <div>
             <p className="text-sm font-medium">Card</p>
-            <p className="text-xs text-muted-foreground">Visa, Mastercard, Amex — via Stripe</p>
+            <p className="text-xs text-muted-foreground">
+              Visa, Mastercard, Amex — via Stripe
+            </p>
           </div>
         </button>
         <button
-          onClick={() => toast.message("Dubu Pay (NGN bank transfer) — wired up with the API.")}
+          onClick={() =>
+            toast.message(
+              "Dubu Pay (NGN bank transfer) — wired up with the API.",
+            )
+          }
           className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-[var(--shadow-soft)] transition-colors hover:bg-accent"
         >
           <Wallet className="h-5 w-5" />
           <div>
             <p className="text-sm font-medium">Dubu Pay</p>
-            <p className="text-xs text-muted-foreground">NGN bank transfer & onramp</p>
+            <p className="text-xs text-muted-foreground">
+              NGN bank transfer & onramp
+            </p>
           </div>
         </button>
       </div>
 
       {/* History */}
-      <h2 className="mt-10 font-serif text-xl font-semibold">Recent activity</h2>
+      <h2 className="mt-10 font-serif text-xl font-semibold">
+        Recent activity
+      </h2>
       <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-soft)]">
         {txns.length === 0 ? (
-          <p className="p-5 text-sm text-muted-foreground">No transactions yet.</p>
+          <p className="p-5 text-sm text-muted-foreground">
+            No transactions yet.
+          </p>
         ) : (
           <ul className="divide-y divide-border">
             {txns.map((t) => (
-              <li key={t.id} className="flex items-center justify-between gap-4 px-5 py-3">
+              <li
+                key={t.id}
+                className="flex items-center justify-between gap-4 px-5 py-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm">{t.description}</p>
                   <p className="text-xs text-muted-foreground">
@@ -221,7 +266,13 @@ function PlanCard({
         disabled={isCurrent || isDowngrade}
         onClick={onSelect}
       >
-        {isCurrent ? "Current plan" : isDowngrade ? "Included" : plan.id === "free" ? "Downgrade" : `Upgrade to ${plan.name}`}
+        {isCurrent
+          ? "Current plan"
+          : isDowngrade
+            ? "Included"
+            : plan.id === "free"
+              ? "Downgrade"
+              : `Upgrade to ${plan.name}`}
       </Button>
     </div>
   );

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   ArrowLeft,
@@ -65,13 +65,13 @@ function Workspace({ id }: { id: string }) {
   const { user } = useAuth();
   const plan = user?.plan ?? "free";
 
-  async function reload() {
+  const reload = useCallback(async () => {
     setS(await sessions.get(id));
-  }
+  }, [id]);
   useEffect(() => {
     void reload();
     void modelsApi.list().then(setAllModels);
-  }, [id]);
+  }, [reload]);
 
   async function switchModel(modelId: string) {
     if (!s) return;
@@ -81,7 +81,9 @@ function Workspace({ id }: { id: string }) {
 
   if (!s) {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-12 text-sm text-muted-foreground">Loading…</div>
+      <div className="mx-auto max-w-5xl px-6 py-12 text-sm text-muted-foreground">
+        Loading…
+      </div>
     );
   }
 
@@ -98,8 +100,12 @@ function Workspace({ id }: { id: string }) {
       <div className="mb-6 rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-soft)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.company}</p>
-            <h1 className="mt-0.5 font-serif text-2xl font-semibold tracking-tight">{s.role}</h1>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              {s.company}
+            </p>
+            <h1 className="mt-0.5 font-serif text-2xl font-semibold tracking-tight">
+              {s.role}
+            </h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {allModels.length > 0 && (
@@ -110,8 +116,18 @@ function Workspace({ id }: { id: string }) {
                 onChange={switchModel}
               />
             )}
-            <Button variant="ghost" size="sm" onClick={() => setJdOpen((v) => !v)} className="gap-1">
-              Job description {jdOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setJdOpen((v) => !v)}
+              className="gap-1"
+            >
+              Job description{" "}
+              {jdOpen ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
             </Button>
           </div>
         </div>
@@ -149,7 +165,13 @@ function Workspace({ id }: { id: string }) {
 
 /* ───────── Resume tab ───────── */
 
-function ResumeTab({ session, onChange }: { session: GenerationSession; onChange: () => void }) {
+function ResumeTab({
+  session,
+  onChange,
+}: {
+  session: GenerationSession;
+  onChange: () => void;
+}) {
   const [busy, setBusy] = useState(false);
   const [diff, setDiff] = useState(false);
   const [templateId, setTemplateId] = useState(session.templateId);
@@ -200,10 +222,16 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-4">
-          <TemplatePicker value={templateId} plan={plan} onChange={changeTemplate} />
+          <TemplatePicker
+            value={templateId}
+            plan={plan}
+            onChange={changeTemplate}
+          />
           <label className="flex items-center gap-2 text-sm">
             <Switch checked={diff} onCheckedChange={setDiff} id="diff" />
-            <Label htmlFor="diff" className="cursor-pointer">Show diff vs master</Label>
+            <Label htmlFor="diff" className="cursor-pointer">
+              Show diff vs master
+            </Label>
           </label>
         </div>
         <div className="flex gap-2">
@@ -212,17 +240,27 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
             size="sm"
             onClick={regen}
             disabled={busy || atRetryLimit}
-            title={atRetryLimit ? "Regeneration limit reached for your plan" : undefined}
+            title={
+              atRetryLimit
+                ? "Regeneration limit reached for your plan"
+                : undefined
+            }
             className="gap-2"
           >
             <RefreshCw className={busy ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
-            Regenerate{!atRetryLimit && RETRY_LIMIT[plan] > 0 ? ` (${retriesLeft})` : ""}
+            Regenerate
+            {!atRetryLimit && RETRY_LIMIT[plan] > 0 ? ` (${retriesLeft})` : ""}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() =>
-              downloadFromApi("resume", session.id, "docx", `${fileBase(session)}.docx`)
+              downloadFromApi(
+                "resume",
+                session.id,
+                "docx",
+                `${fileBase(session)}.docx`,
+              )
             }
             className="gap-2"
           >
@@ -230,7 +268,14 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
           </Button>
           <Button
             size="sm"
-            onClick={() => downloadFromApi("resume", session.id, "pdf", `${fileBase(session)}.pdf`)}
+            onClick={() =>
+              downloadFromApi(
+                "resume",
+                session.id,
+                "pdf",
+                `${fileBase(session)}.pdf`,
+              )
+            }
             className="gap-2"
           >
             <Download className="h-4 w-4" /> PDF
@@ -238,7 +283,11 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
         </div>
       </div>
       <div className="overflow-x-auto rounded-xl border border-border bg-muted/30 p-4 shadow-[var(--shadow-soft)]">
-        <ResumeDocument data={session.tailoredResume} diff={diff} template={templateId} />
+        <ResumeDocument
+          data={session.tailoredResume}
+          diff={diff}
+          template={templateId}
+        />
       </div>
     </div>
   );
@@ -249,10 +298,18 @@ function ResumeTab({ session, onChange }: { session: GenerationSession; onChange
 const TONES = ["professional", "conversational", "enthusiastic"] as const;
 type Tone = (typeof TONES)[number];
 
-function CoverTab({ session, onChange }: { session: GenerationSession; onChange: () => void }) {
+function CoverTab({
+  session,
+  onChange,
+}: {
+  session: GenerationSession;
+  onChange: () => void;
+}) {
   const [busy, setBusy] = useState(false);
   const [tone, setTone] = useState<Tone>("professional");
-  const [draft, setDraft] = useState<CoverLetter | null>(session.coverLetter ?? null);
+  const [draft, setDraft] = useState<CoverLetter | null>(
+    session.coverLetter ?? null,
+  );
   const ref = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const plan = user?.plan ?? "free";
@@ -281,7 +338,9 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
   if (!draft) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)]">
-        <h3 className="font-serif text-xl font-semibold">Generate a cover letter</h3>
+        <h3 className="font-serif text-xl font-semibold">
+          Generate a cover letter
+        </h3>
         <p className="mt-1 text-sm text-muted-foreground">
           We'll reference your tailored resume and the job description.
         </p>
@@ -289,16 +348,24 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
           <div className="text-left">
             <Label className="text-xs">Tone</Label>
             <Select value={tone} onValueChange={(v) => setTone(v as Tone)}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {TONES.map((t) => (
-                  <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                  <SelectItem key={t} value={t} className="capitalize">
+                    {t}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <Button onClick={gen} disabled={busy} className="gap-2">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
             {busy ? "Writing…" : "Generate cover letter"}
           </Button>
         </div>
@@ -316,10 +383,15 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
           size="sm"
           onClick={gen}
           disabled={busy || atRetryLimit}
-          title={atRetryLimit ? "Regeneration limit reached for your plan" : undefined}
+          title={
+            atRetryLimit
+              ? "Regeneration limit reached for your plan"
+              : undefined
+          }
           className="gap-2"
         >
-          <RefreshCw className={busy ? "h-4 w-4 animate-spin" : "h-4 w-4"} /> Regenerate
+          <RefreshCw className={busy ? "h-4 w-4 animate-spin" : "h-4 w-4"} />{" "}
+          Regenerate
           {!atRetryLimit && RETRY_LIMIT[plan] > 0 ? ` (${retriesLeft})` : ""}
         </Button>
         <Button
@@ -336,14 +408,18 @@ function CoverTab({ session, onChange }: { session: GenerationSession; onChange:
         <Button
           variant="outline"
           size="sm"
-          onClick={() => downloadText(text, `${fileBase(session)}_CoverLetter.txt`)}
+          onClick={() =>
+            downloadText(text, `${fileBase(session)}_CoverLetter.txt`)
+          }
           className="gap-2"
         >
           <Download className="h-4 w-4" /> TXT
         </Button>
         <Button
           size="sm"
-          onClick={() => printElement(ref.current, `${fileBase(session)}_CoverLetter`)}
+          onClick={() =>
+            printElement(ref.current, `${fileBase(session)}_CoverLetter`)
+          }
           className="gap-2"
         >
           <Download className="h-4 w-4" /> PDF
@@ -408,7 +484,10 @@ function QATab({ session }: { session: GenerationSession }) {
   const atLimit = used >= limit;
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages, busy]);
 
   async function send(raw: string) {
@@ -430,7 +509,11 @@ function QATab({ session }: { session: GenerationSession }) {
     setBusy(true);
     try {
       const answer = await generation.askQuestion(session.id, question);
-      setMessages((m) => [...m.filter((x) => x.id !== tmpId), { ...optimistic, id: "u-" + answer.id }, answer]);
+      setMessages((m) => [
+        ...m.filter((x) => x.id !== tmpId),
+        { ...optimistic, id: "u-" + answer.id },
+        answer,
+      ]);
       void creditsStore.refresh();
     } catch {
       toast.error("Couldn't answer. Try again.");
@@ -442,13 +525,18 @@ function QATab({ session }: { session: GenerationSession }) {
 
   return (
     <div className="flex h-[70vh] flex-col rounded-xl border border-border bg-card shadow-[var(--shadow-soft)]">
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6">
+      <div
+        ref={scrollRef}
+        className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6"
+      >
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <h3 className="font-serif text-xl font-semibold">Q&amp;A Assistant</h3>
+            <h3 className="font-serif text-xl font-semibold">
+              Q&amp;A Assistant
+            </h3>
             <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              Paste an application question and I&apos;ll answer it as you, using your tailored resume
-              and this job.
+              Paste an application question and I&apos;ll answer it as you,
+              using your tailored resume and this job.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               {QA_EXAMPLES.map((q) => (
@@ -462,7 +550,9 @@ function QATab({ session }: { session: GenerationSession }) {
                 </button>
               ))}
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">{used} / {limit} questions used this session</p>
+            <p className="mt-4 text-xs text-muted-foreground">
+              {used} / {limit} questions used this session
+            </p>
           </div>
         ) : (
           messages.map((m) => <ChatBubble key={m.id} message={m} />)
@@ -477,7 +567,10 @@ function QATab({ session }: { session: GenerationSession }) {
       {atLimit ? (
         <div className="border-t border-border p-3 text-center text-sm text-muted-foreground">
           You&apos;ve used all {limit} Q&amp;A questions for this session.{" "}
-          <Link to="/billing" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/billing"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Upgrade for more
           </Link>
           .
@@ -504,7 +597,12 @@ function QATab({ session }: { session: GenerationSession }) {
             aria-label="Your question"
             className="max-h-40 min-h-10 flex-1 resize-none"
           />
-          <Button type="submit" size="icon" disabled={busy || !input.trim()} aria-label="Send">
+          <Button
+            type="submit"
+            size="icon"
+            disabled={busy || !input.trim()}
+            aria-label="Send"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </form>
@@ -550,14 +648,32 @@ const PREP_TYPES: { value: InterviewType; label: string }[] = [
   { value: "system-design", label: "System design" },
   { value: "mixed", label: "Mixed" },
 ];
-const PREP_TONES: InterviewTone[] = ["professional", "conversational", "creative"];
+const PREP_TONES: InterviewTone[] = [
+  "professional",
+  "conversational",
+  "creative",
+];
 const PREP_FORMATS: DocFormat[] = ["md", "docx", "pdf", "txt"];
 
-function PrepTab({ session, onChange }: { session: GenerationSession; onChange: () => void }) {
-  const [type, setType] = useState<InterviewType>(session.interviewBrief?.type ?? "mixed");
-  const [tone, setTone] = useState<InterviewTone>(session.interviewBrief?.tone ?? "professional");
-  const [format, setFormat] = useState<DocFormat>(session.interviewBrief?.format ?? "md");
-  const [brief, setBrief] = useState<InterviewBrief | null>(session.interviewBrief ?? null);
+function PrepTab({
+  session,
+  onChange,
+}: {
+  session: GenerationSession;
+  onChange: () => void;
+}) {
+  const [type, setType] = useState<InterviewType>(
+    session.interviewBrief?.type ?? "mixed",
+  );
+  const [tone, setTone] = useState<InterviewTone>(
+    session.interviewBrief?.tone ?? "professional",
+  );
+  const [format, setFormat] = useState<DocFormat>(
+    session.interviewBrief?.format ?? "md",
+  );
+  const [brief, setBrief] = useState<InterviewBrief | null>(
+    session.interviewBrief ?? null,
+  );
   const [busy, setBusy] = useState(false);
   const { user } = useAuth();
   const plan = user?.plan ?? "free";
@@ -567,13 +683,19 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
   async function gen() {
     setBusy(true);
     try {
-      const b = await generation.generateInterviewBrief(session.id, { type, tone, format });
+      const b = await generation.generateInterviewBrief(session.id, {
+        type,
+        tone,
+        format,
+      });
       setBrief(b);
       onChange();
       void creditsStore.refresh();
       toast.success("Brief generated");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Couldn't generate the brief.");
+      toast.error(
+        e instanceof Error ? e.message : "Couldn't generate the brief.",
+      );
     } finally {
       setBusy(false);
     }
@@ -595,33 +717,54 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
       <div className="h-fit space-y-4 rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
         <div>
           <Label className="text-xs">Interview type</Label>
-          <Select value={type} onValueChange={(v) => setType(v as InterviewType)}>
-            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <Select
+            value={type}
+            onValueChange={(v) => setType(v as InterviewType)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {PREP_TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label className="text-xs">Tone</Label>
-          <Select value={tone} onValueChange={(v) => setTone(v as InterviewTone)}>
-            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <Select
+            value={tone}
+            onValueChange={(v) => setTone(v as InterviewTone)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {PREP_TONES.map((t) => (
-                <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                <SelectItem key={t} value={t} className="capitalize">
+                  {t}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label className="text-xs">Download format</Label>
-          <Select value={format} onValueChange={(v) => setFormat(v as DocFormat)}>
-            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+          <Select
+            value={format}
+            onValueChange={(v) => setFormat(v as DocFormat)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {PREP_FORMATS.map((f) => (
-                <SelectItem key={f} value={f} className="uppercase">{f}</SelectItem>
+                <SelectItem key={f} value={f} className="uppercase">
+                  {f}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -629,16 +772,29 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
         <Button
           onClick={gen}
           disabled={busy || atRetryLimit}
-          title={atRetryLimit ? "Regeneration limit reached for your plan" : undefined}
+          title={
+            atRetryLimit
+              ? "Regeneration limit reached for your plan"
+              : undefined
+          }
           className="w-full gap-2"
         >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          {brief ? `Regenerate${!atRetryLimit && RETRY_LIMIT[plan] > 0 ? ` (${retriesLeft})` : ""}` : "Generate brief"}
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {brief
+            ? `Regenerate${!atRetryLimit && RETRY_LIMIT[plan] > 0 ? ` (${retriesLeft})` : ""}`
+            : "Generate brief"}
         </Button>
         {atRetryLimit && (
           <p className="text-xs text-muted-foreground">
             Regeneration limit reached.{" "}
-            <Link to="/billing" className="text-foreground underline-offset-4 hover:underline">
+            <Link
+              to="/billing"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
               Upgrade
             </Link>{" "}
             for more.
@@ -650,7 +806,8 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
           </Button>
         )}
         <p className="text-xs text-muted-foreground">
-          The brief is self-contained — feed it to an AI mock-interviewer as context.
+          The brief is self-contained — feed it to an AI mock-interviewer as
+          context.
         </p>
       </div>
 
@@ -659,15 +816,23 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
         {brief ? (
           <div
             className="md-prose"
-            style={{ background: "#fff", color: "#111", padding: "40px 48px", borderRadius: 8 }}
+            style={{
+              background: "#fff",
+              color: "#111",
+              padding: "40px 48px",
+              borderRadius: 8,
+            }}
           >
             <ReactMarkdown>{brief.content}</ReactMarkdown>
           </div>
         ) : (
           <div className="flex h-full min-h-64 flex-col items-center justify-center p-10 text-center">
-            <h3 className="font-serif text-xl font-semibold text-foreground">No brief yet</h3>
+            <h3 className="font-serif text-xl font-semibold text-foreground">
+              No brief yet
+            </h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Pick an interview type and tone, then generate a prep document tailored to this job.
+              Pick an interview type and tone, then generate a prep document
+              tailored to this job.
             </p>
           </div>
         )}
@@ -680,10 +845,14 @@ function PrepTab({ session, onChange }: { session: GenerationSession; onChange: 
 
 /** Download filename base: "FullName_Role" (sanitized) from the session's tailored resume + role. */
 function sanitizePart(s: string): string {
-  return (s || "").trim().replace(/[^\w]+/g, "_").replace(/^_+|_+$/g, "");
+  return (s || "")
+    .trim()
+    .replace(/[^\w]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 function fileBase(session: GenerationSession): string {
-  const name = sanitizePart(session.tailoredResume?.header.name ?? "") || "Resume";
+  const name =
+    sanitizePart(session.tailoredResume?.header.name ?? "") || "Resume";
   const role = sanitizePart(session.role) || "Role";
   return `${name}_${role}`;
 }
@@ -704,7 +873,9 @@ async function downloadFromApi(
     a.click();
     URL.revokeObjectURL(url);
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "Couldn't download that file.");
+    toast.error(
+      e instanceof Error ? e.message : "Couldn't download that file.",
+    );
   }
 }
 

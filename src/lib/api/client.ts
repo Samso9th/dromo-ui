@@ -2,10 +2,12 @@ import { authStore } from "../auth-store";
 import { ApiError } from "./types";
 
 export const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:4000/api/v1";
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  "http://localhost:4000/api/v1";
 
 export const USE_MOCKS =
-  ((import.meta.env.VITE_USE_MOCKS as string | undefined) ?? "true") !== "false";
+  ((import.meta.env.VITE_USE_MOCKS as string | undefined) ?? "true") !==
+  "false";
 
 export function mockDelay(ms = 450): Promise<void> {
   return new Promise((res) => setTimeout(res, ms));
@@ -21,7 +23,10 @@ interface RequestOptions {
 }
 
 /** Cookie-based: sends httpOnly auth cookies via credentials:"include". No bearer token. */
-export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+export async function apiFetch<T>(
+  path: string,
+  opts: RequestOptions = {},
+): Promise<T> {
   const { method = "GET", body, headers = {}, raw } = opts;
   const res = await fetch(`${BASE_URL}${path}`, {
     method,

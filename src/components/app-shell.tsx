@@ -97,8 +97,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             title={`${PLAN_LABEL[plan]} plan`}
           >
             <Coins className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-medium tabular-nums">{loaded ? balance.toLocaleString() : "—"}</span>
-            <span className="hidden text-muted-foreground sm:inline">credits</span>
+            <span className="font-medium tabular-nums">
+              {loaded ? balance.toLocaleString() : "—"}
+            </span>
+            <span className="hidden text-muted-foreground sm:inline">
+              credits
+            </span>
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               {PLAN_LABEL[plan]}
             </span>

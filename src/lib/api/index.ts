@@ -36,7 +36,8 @@ let _user: User = { ...mockUser };
 // Mock-only session flag (mirrors the cookie session) so the hydrate/me() flow behaves like real auth.
 const SESSION_KEY = "dromo.mockSession";
 const mockAuthed = () =>
-  typeof window !== "undefined" && window.localStorage.getItem(SESSION_KEY) === "1";
+  typeof window !== "undefined" &&
+  window.localStorage.getItem(SESSION_KEY) === "1";
 function setMockAuthed(on: boolean) {
   if (typeof window === "undefined") return;
   if (on) window.localStorage.setItem(SESSION_KEY, "1");
@@ -44,15 +45,20 @@ function setMockAuthed(on: boolean) {
 }
 
 /** Full URL to start an OAuth flow (real backend redirect). */
-export const oauthUrl = (provider: OAuthProvider) => `${BASE_URL}/auth/oauth/${provider}`;
+export const oauthUrl = (provider: OAuthProvider) =>
+  `${BASE_URL}/auth/oauth/${provider}`;
 
 function newId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /** Mock-only: deduct credits for an action using the session's selected model. */
-function chargeMockCredits(session: GenerationSession, action: ActionType): void {
-  const model = mockModels.find((m) => m.id === session.modelId) ?? mockModels[0];
+function chargeMockCredits(
+  session: GenerationSession,
+  action: ActionType,
+): void {
+  const model =
+    mockModels.find((m) => m.id === session.modelId) ?? mockModels[0];
   const cost = creditsFor(model, action);
   _user = { ..._user, credits: Math.max(0, _user.credits - cost) };
 }
@@ -95,7 +101,14 @@ export const auth = {
     if (USE_MOCKS) {
       await mockDelay();
       _master = null;
-      _user = { id: newId("u"), name, email, hasMasterResume: false, plan: "free", credits: 100 };
+      _user = {
+        id: newId("u"),
+        name,
+        email,
+        hasMasterResume: false,
+        plan: "free",
+        credits: 100,
+      };
       setMockAuthed(true);
       return _user;
     }
@@ -180,7 +193,10 @@ export const resume = {
       _master = next;
       return _master;
     }
-    return apiFetch<MasterResume>("/resume/master", { method: "PUT", body: next });
+    return apiFetch<MasterResume>("/resume/master", {
+      method: "PUT",
+      body: next,
+    });
   },
 };
 
@@ -217,7 +233,10 @@ export const sessions = {
       _sessions.set(s.id, s);
       return s;
     }
-    return apiFetch<GenerationSession>("/sessions", { method: "POST", body: input });
+    return apiFetch<GenerationSession>("/sessions", {
+      method: "POST",
+      body: input,
+    });
   },
   async setModel(id: string, modelId: string): Promise<GenerationSession> {
     if (USE_MOCKS) {
@@ -232,7 +251,10 @@ export const sessions = {
       body: { modelId },
     });
   },
-  async setTemplate(id: string, templateId: string): Promise<GenerationSession> {
+  async setTemplate(
+    id: string,
+    templateId: string,
+  ): Promise<GenerationSession> {
     if (USE_MOCKS) {
       await mockDelay(120);
       const s = _sessions.get(id);
@@ -282,9 +304,14 @@ export const generation = {
       chargeMockCredits(s, "tailor");
       return tailored;
     }
-    return apiFetch<TailoredResume>(`/sessions/${sessionId}/tailor`, { method: "POST" });
+    return apiFetch<TailoredResume>(`/sessions/${sessionId}/tailor`, {
+      method: "POST",
+    });
   },
-  async generateCoverLetter(sessionId: string, tone?: string): Promise<CoverLetter> {
+  async generateCoverLetter(
+    sessionId: string,
+    tone?: string,
+  ): Promise<CoverLetter> {
     if (USE_MOCKS) {
       await mockDelay(900);
       const s = _sessions.get(sessionId);
@@ -364,14 +391,16 @@ export const files = {
   ): Promise<Blob> {
     if (USE_MOCKS) {
       await mockDelay(400);
-      return new Blob(
-        [`mock ${kind} for ${sessionId} (${format})`],
-        { type: format === "pdf" ? "application/pdf" : "text/plain" },
-      );
+      return new Blob([`mock ${kind} for ${sessionId} (${format})`], {
+        type: format === "pdf" ? "application/pdf" : "text/plain",
+      });
     }
-    const res = await fetch(`${BASE_URL}/files/${kind}/${sessionId}?format=${format}`, {
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${BASE_URL}/files/${kind}/${sessionId}?format=${format}`,
+      {
+        credentials: "include",
+      },
+    );
     return await res.blob();
   },
 };
@@ -402,11 +431,41 @@ export const billing = {
       const now = Date.now();
       const h = 1000 * 60 * 60;
       return [
-        { id: "t1", kind: "grant", amount: 1500, description: "Pro plan — monthly credits", createdAt: new Date(now - 72 * h).toISOString() },
-        { id: "t2", kind: "spend", amount: -32, description: "Tailored resume · Claude Sonnet 4.5 · Linear", createdAt: new Date(now - 26 * h).toISOString() },
-        { id: "t3", kind: "spend", amount: -8, description: "Cover letter · Claude Sonnet 4.5 · Linear", createdAt: new Date(now - 26 * h).toISOString() },
-        { id: "t4", kind: "topup", amount: 1000, description: "Top-up pack — 1,000 credits", createdAt: new Date(now - 20 * h).toISOString() },
-        { id: "t5", kind: "spend", amount: -2, description: "Tailored resume · Qwen3 235B · Stripe", createdAt: new Date(now - 4 * h).toISOString() },
+        {
+          id: "t1",
+          kind: "grant",
+          amount: 1500,
+          description: "Pro plan — monthly credits",
+          createdAt: new Date(now - 72 * h).toISOString(),
+        },
+        {
+          id: "t2",
+          kind: "spend",
+          amount: -32,
+          description: "Tailored resume · Claude Sonnet 4.5 · Linear",
+          createdAt: new Date(now - 26 * h).toISOString(),
+        },
+        {
+          id: "t3",
+          kind: "spend",
+          amount: -8,
+          description: "Cover letter · Claude Sonnet 4.5 · Linear",
+          createdAt: new Date(now - 26 * h).toISOString(),
+        },
+        {
+          id: "t4",
+          kind: "topup",
+          amount: 1000,
+          description: "Top-up pack — 1,000 credits",
+          createdAt: new Date(now - 20 * h).toISOString(),
+        },
+        {
+          id: "t5",
+          kind: "spend",
+          amount: -2,
+          description: "Tailored resume · Qwen3 235B · Stripe",
+          createdAt: new Date(now - 4 * h).toISOString(),
+        },
       ];
     }
     return apiFetch<CreditTransaction[]>("/billing/transactions");
@@ -422,7 +481,10 @@ export const billing = {
       await mockDelay(300);
       return { url: "#mock-checkout" };
     }
-    return apiFetch<{ url: string }>("/billing/checkout", { method: "POST", body: input });
+    return apiFetch<{ url: string }>("/billing/checkout", {
+      method: "POST",
+      body: input,
+    });
   },
 };
 

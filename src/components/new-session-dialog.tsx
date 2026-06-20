@@ -21,7 +21,11 @@ import { creditsStore } from "@/lib/credits-store";
 import { useAuth } from "@/lib/auth-store";
 import type { AiModel } from "@/lib/api/types";
 
-const STEPS = ["Analyzing job…", "Matching your experience…", "Tailoring resume…"];
+const STEPS = [
+  "Analyzing job…",
+  "Matching your experience…",
+  "Tailoring resume…",
+];
 
 export function NewSessionDialog({
   open,
@@ -57,7 +61,10 @@ export function NewSessionDialog({
     }
     setBusy(true);
     setStep(0);
-    const tick = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 700);
+    const tick = setInterval(
+      () => setStep((s) => Math.min(s + 1, STEPS.length - 1)),
+      700,
+    );
     try {
       const s = await sessions.create({
         company: company || "Untitled",
@@ -83,15 +90,21 @@ export function NewSessionDialog({
     <Dialog open={open} onOpenChange={(v) => !busy && onOpenChange(v)}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl">Tailor a new resume</DialogTitle>
+          <DialogTitle className="font-serif text-2xl">
+            Tailor a new resume
+          </DialogTitle>
           <DialogDescription>
-            We'll add the skills this job requires, drop what's irrelevant, and rewrite
-            bullets to match. No bloat.
+            We'll add the skills this job requires, drop what's irrelevant, and
+            rewrite bullets to match. No bloat.
           </DialogDescription>
         </DialogHeader>
 
         {busy ? (
-          <div className="flex flex-col items-center gap-3 py-10 text-sm" role="status" aria-live="polite">
+          <div
+            className="flex flex-col items-center gap-3 py-10 text-sm"
+            role="status"
+            aria-live="polite"
+          >
             <Loader2 className="h-5 w-5 animate-spin" />
             <p>{STEPS[step]}</p>
           </div>
@@ -100,16 +113,31 @@ export function NewSessionDialog({
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label htmlFor="company">Company</Label>
-                <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Linear" />
+                <Input
+                  id="company"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Linear"
+                />
               </div>
               <div>
                 <Label htmlFor="role">Role title</Label>
-                <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Senior Product Engineer" />
+                <Input
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  placeholder="Senior Product Engineer"
+                />
               </div>
             </div>
             <div>
               <Label htmlFor="url">Job URL (optional)</Label>
-              <Input id="url" value={jobUrl} onChange={(e) => setJobUrl(e.target.value)} placeholder="https://…" />
+              <Input
+                id="url"
+                value={jobUrl}
+                onChange={(e) => setJobUrl(e.target.value)}
+                placeholder="https://…"
+              />
             </div>
             <div>
               <Label htmlFor="jd">Job description</Label>
@@ -129,7 +157,12 @@ export function NewSessionDialog({
                     You can switch models any time inside the session.
                   </p>
                 </div>
-                <ModelPicker models={allModels} value={modelId} plan={plan} onChange={setModelId} />
+                <ModelPicker
+                  models={allModels}
+                  value={modelId}
+                  plan={plan}
+                  onChange={setModelId}
+                />
               </div>
             )}
           </div>
@@ -137,7 +170,9 @@ export function NewSessionDialog({
 
         {!busy && (
           <DialogFooter>
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <Button onClick={go}>Generate tailored resume</Button>
           </DialogFooter>
         )}

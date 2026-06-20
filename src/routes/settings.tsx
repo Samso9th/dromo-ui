@@ -35,7 +35,8 @@ export const Route = createFileRoute("/settings")({
 });
 
 const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:8080";
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  "http://localhost:8080";
 
 const PROVIDERS: { id: OAuthProvider; label: string; icon: typeof Github }[] = [
   { id: "google", label: "Google", icon: Chrome },
@@ -69,26 +70,52 @@ function SettingsPage() {
   }
 
   return (
-    <div ref={ref} className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6 md:py-12">
-      <h1 className="font-serif text-3xl font-semibold tracking-tight md:text-4xl">Settings</h1>
+    <div
+      ref={ref}
+      className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6 md:py-12"
+    >
+      <h1 className="font-serif text-3xl font-semibold tracking-tight md:text-4xl">
+        Settings
+      </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Account, appearance, and integrations.
       </p>
 
       {/* Profile */}
-      <SettingsSection title="Profile" description="How your name appears across Dromo.">
+      <SettingsSection
+        title="Profile"
+        description="How your name appears across Dromo."
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label htmlFor="name" className="text-xs">Name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1" />
+            <Label htmlFor="name" className="text-xs">
+              Name
+            </Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1"
+            />
           </div>
           <div>
-            <Label htmlFor="email" className="text-xs">Email</Label>
-            <Input id="email" value={user?.email ?? ""} readOnly disabled className="mt-1" />
+            <Label htmlFor="email" className="text-xs">
+              Email
+            </Label>
+            <Input
+              id="email"
+              value={user?.email ?? ""}
+              readOnly
+              disabled
+              className="mt-1"
+            />
           </div>
         </div>
         <div className="mt-4">
-          <Button onClick={saveProfile} disabled={!name.trim() || name === user?.name}>
+          <Button
+            onClick={saveProfile}
+            disabled={!name.trim() || name === user?.name}
+          >
             Save changes
           </Button>
         </div>
@@ -127,11 +154,16 @@ function SettingsPage() {
       </SettingsSection>
 
       {/* Appearance */}
-      <SettingsSection title="Appearance" description="Dromo defaults to dark mode.">
+      <SettingsSection
+        title="Appearance"
+        description="Dromo defaults to dark mode."
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Dark mode</p>
-            <p className="text-xs text-muted-foreground">Toggle the interface theme.</p>
+            <p className="text-xs text-muted-foreground">
+              Toggle the interface theme.
+            </p>
           </div>
           <Switch
             checked={theme === "dark"}
@@ -180,13 +212,15 @@ function SettingsPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This permanently removes your master resume and all sessions. This can&apos;t be
-                  undone.
+                  This permanently removes your master resume and all sessions.
+                  This can&apos;t be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={deleteAccount}>Delete account</AlertDialogAction>
+                <AlertDialogAction onClick={deleteAccount}>
+                  Delete account
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

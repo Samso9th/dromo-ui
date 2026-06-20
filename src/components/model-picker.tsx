@@ -5,7 +5,12 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { creditsFor, modelUnlocked, PLAN_LABEL, requiredPlan } from "@/lib/credits";
+import {
+  creditsFor,
+  modelUnlocked,
+  PLAN_LABEL,
+  requiredPlan,
+} from "@/lib/credits";
 import type { AiModel, Plan } from "@/lib/api/types";
 
 /**
@@ -32,7 +37,9 @@ export function ModelPicker({
     <Select value={value} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="h-9 w-[15rem] gap-2" aria-label="AI model">
         <Cpu className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="truncate text-left">{selected?.name ?? "Select model"}</span>
+        <span className="truncate text-left">
+          {selected?.name ?? "Select model"}
+        </span>
         {selected && (
           <span className="ml-auto shrink-0 text-xs text-muted-foreground">
             ~{creditsFor(selected, "tailor")} cr
@@ -43,11 +50,18 @@ export function ModelPicker({
         {models.map((m) => {
           const locked = !modelUnlocked(m, plan);
           return (
-            <SelectItem key={m.id} value={m.id} disabled={locked} className="py-2">
+            <SelectItem
+              key={m.id}
+              value={m.id}
+              disabled={locked}
+              className="py-2"
+            >
               <div className="flex w-full items-center justify-between gap-4 pr-1">
                 <span className="flex flex-col">
                   <span className="font-medium">{m.name}</span>
-                  <span className="text-xs text-muted-foreground">{m.note}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {m.note}
+                  </span>
                 </span>
                 <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
                   {locked ? (

@@ -1,9 +1,4 @@
-import type {
-  AiModel,
-  GenerationSession,
-  MasterResume,
-  User,
-} from "../types";
+import type { AiModel, GenerationSession, MasterResume, User } from "../types";
 
 export const mockUser: User = {
   id: "user_1",
@@ -17,16 +12,76 @@ export const mockUser: User = {
 /** Curated model list with real names. Tier is internal (gating only). Prices = USD per 1M tokens
  *  (live OpenRouter values, 2026-06-19). The real API fetches these from /models. */
 export const mockModels: AiModel[] = [
-  { id: "qwen/qwen3-235b-a22b-2507", name: "Qwen3 235B", note: "Fast & economical", tier: "economy", pricing: { in: 0.09, out: 0.1 } },
-  { id: "deepseek/deepseek-chat", name: "DeepSeek V3", note: "Great all-round value", tier: "economy", pricing: { in: 0.2, out: 0.8 } },
-  { id: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", note: "Open & cheap", tier: "economy", pricing: { in: 0.1, out: 0.32 } },
-  { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", note: "Quick and capable", tier: "economy", pricing: { in: 0.3, out: 2.5 } },
-  { id: "google/gemini-2.5-pro", name: "Gemini 2.5 Pro", note: "Strong reasoning", tier: "standard", pricing: { in: 1.25, out: 10 } },
-  { id: "openai/gpt-4o", name: "GPT-4o", note: "Well-rounded", tier: "standard", pricing: { in: 2.5, out: 10 } },
-  { id: "openai/gpt-4.1", name: "GPT-4.1", note: "Precise & reliable", tier: "standard", pricing: { in: 2, out: 8 } },
-  { id: "anthropic/claude-sonnet-4.5", name: "Claude Sonnet 4.5", note: "Excellent writing", tier: "standard", pricing: { in: 3, out: 15 } },
-  { id: "anthropic/claude-opus-4.5", name: "Claude Opus 4.5", note: "Top quality", tier: "premium", pricing: { in: 5, out: 25 } },
-  { id: "anthropic/claude-opus-4.8-fast", name: "Claude Opus 4.8 Fast", note: "Best & fastest", tier: "premium", pricing: { in: 10, out: 50 } },
+  {
+    id: "qwen/qwen3-235b-a22b-2507",
+    name: "Qwen3 235B",
+    note: "Fast & economical",
+    tier: "economy",
+    pricing: { in: 0.09, out: 0.1 },
+  },
+  {
+    id: "deepseek/deepseek-chat",
+    name: "DeepSeek V3",
+    note: "Great all-round value",
+    tier: "economy",
+    pricing: { in: 0.2, out: 0.8 },
+  },
+  {
+    id: "meta-llama/llama-3.3-70b-instruct",
+    name: "Llama 3.3 70B",
+    note: "Open & cheap",
+    tier: "economy",
+    pricing: { in: 0.1, out: 0.32 },
+  },
+  {
+    id: "google/gemini-2.5-flash",
+    name: "Gemini 2.5 Flash",
+    note: "Quick and capable",
+    tier: "economy",
+    pricing: { in: 0.3, out: 2.5 },
+  },
+  {
+    id: "google/gemini-2.5-pro",
+    name: "Gemini 2.5 Pro",
+    note: "Strong reasoning",
+    tier: "standard",
+    pricing: { in: 1.25, out: 10 },
+  },
+  {
+    id: "openai/gpt-4o",
+    name: "GPT-4o",
+    note: "Well-rounded",
+    tier: "standard",
+    pricing: { in: 2.5, out: 10 },
+  },
+  {
+    id: "openai/gpt-4.1",
+    name: "GPT-4.1",
+    note: "Precise & reliable",
+    tier: "standard",
+    pricing: { in: 2, out: 8 },
+  },
+  {
+    id: "anthropic/claude-sonnet-4.5",
+    name: "Claude Sonnet 4.5",
+    note: "Excellent writing",
+    tier: "standard",
+    pricing: { in: 3, out: 15 },
+  },
+  {
+    id: "anthropic/claude-opus-4.5",
+    name: "Claude Opus 4.5",
+    note: "Top quality",
+    tier: "premium",
+    pricing: { in: 5, out: 25 },
+  },
+  {
+    id: "anthropic/claude-opus-4.8-fast",
+    name: "Claude Opus 4.8 Fast",
+    note: "Best & fastest",
+    tier: "premium",
+    pricing: { in: 10, out: 50 },
+  },
 ];
 
 export const DEFAULT_MODEL_ID = mockModels[0].id;

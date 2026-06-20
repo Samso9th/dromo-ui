@@ -98,13 +98,20 @@ function LoginPage() {
       footer={
         <>
           No account?{" "}
-          <Link to="/signup" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/signup"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Create one
           </Link>
         </>
       }
     >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+        noValidate
+      >
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -158,7 +165,9 @@ function LoginPage() {
 
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          or
+        </span>
         <Separator className="flex-1" />
       </div>
 

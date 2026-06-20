@@ -71,7 +71,8 @@ export const RESUME_TEMPLATES: TemplateConfig[] = [
   {
     id: "two-column",
     name: "Two-Column",
-    description: "Sidebar for skills, education & certs; main column for experience.",
+    description:
+      "Sidebar for skills, education & certs; main column for experience.",
     minPlan: "pro",
     font: "sans",
     nameAlign: "left",

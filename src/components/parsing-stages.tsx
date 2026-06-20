@@ -11,14 +11,28 @@ export function ParsingStages({ done }: { done?: boolean }) {
       setIdx(STAGES.length);
       return;
     }
-    const t = setInterval(() => setIdx((i) => Math.min(i + 1, STAGES.length - 1)), 900);
+    const t = setInterval(
+      () => setIdx((i) => Math.min(i + 1, STAGES.length - 1)),
+      900,
+    );
     return () => clearInterval(t);
   }, [done]);
 
   return (
-    <div className="mx-auto w-full max-w-sm space-y-3" role="status" aria-live="polite">
+    <div
+      className="mx-auto w-full max-w-sm space-y-3"
+      role="status"
+      aria-live="polite"
+    >
       {STAGES.map((label, i) => {
-        const state = i < idx ? "done" : i === idx && !done ? "active" : i < idx || done ? "done" : "pending";
+        const state =
+          i < idx
+            ? "done"
+            : i === idx && !done
+              ? "active"
+              : i < idx || done
+                ? "done"
+                : "pending";
         return (
           <div
             key={label}
@@ -39,7 +53,9 @@ export function ParsingStages({ done }: { done?: boolean }) {
             </span>
             <span className="font-medium">
               {label}
-              {state === "active" && <span className="text-muted-foreground"> your resume…</span>}
+              {state === "active" && (
+                <span className="text-muted-foreground"> your resume…</span>
+              )}
             </span>
           </div>
         );
