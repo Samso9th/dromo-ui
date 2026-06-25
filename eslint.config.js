@@ -39,5 +39,11 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    // Vendored shadcn/ui components and the theme module export variant helpers /
+    // hooks alongside components; the fast-refresh hint doesn't meaningfully apply.
+    files: ["src/components/ui/**/*.{ts,tsx}", "src/lib/theme.tsx"],
+    rules: { "react-refresh/only-export-components": "off" },
+  },
   eslintPluginPrettier,
 );
