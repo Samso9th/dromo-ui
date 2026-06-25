@@ -1,5 +1,8 @@
 node_modules/
 dist/
+.vercel/
+.nitro/
+.output/
 .env
 logs/
 *.log

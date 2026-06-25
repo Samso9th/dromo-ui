@@ -209,3 +209,115 @@
     margin: 0.5in;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Marketing / landing surface
+   Monochrome, motion-driven. Reuses the app's grayscale tokens.
+   ───────────────────────────────────────────────────────────── */
+
+/* Scroll-reveal initial state. Content is never permanently hidden:
+   no-JS and reduced-motion users get it back immediately. */
+[data-reveal],
+[data-reveal-stagger] > * {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-stagger] > * {
+    opacity: 1;
+  }
+}
+
+/* Fluid display type for marketing headlines (uses DynaPuff via --font-serif). */
+.display-hero {
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 7vw, 5.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+.display-xl {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+}
+.kicker {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+/* Hero line-mask: each line sits in an overflow-clip box so it can sweep up. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+/* Subtle grain over the whole marketing page for a premium, less-flat feel. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Faint radial glow used behind the hero / CTA. */
+.aura {
+  background: radial-gradient(
+    60% 50% at 50% 0%,
+    color-mix(in oklch, var(--color-foreground) 9%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* Hairline grid backdrop. */
+.grid-lines {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 30%, #000 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 30%, #000 0%, transparent 80%);
+}
+
+/* Infinite logo/feature marquee. */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+  }
+}
+
+/* Card with a soft lift on hover — used in feature/step grids. */
+.lift-card {
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease,
+    box-shadow 0.5s ease;
+}
+.lift-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklch, var(--color-foreground) 28%, transparent);
+  box-shadow: var(--shadow-deep);
+}
